@@ -6,62 +6,61 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 220 20% 10%;
+    --background: 220 20% 7%;
+    --foreground: 210 20% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card: 220 18% 10%;
+    --card-foreground: 210 20% 90%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover: 220 18% 12%;
+    --popover-foreground: 210 20% 90%;
 
-    --primary: 215 90% 50%;
+    --primary: 174 55% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 20%;
+    --secondary: 220 16% 14%;
+    --secondary-foreground: 210 20% 85%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 220 16% 16%;
+    --muted-foreground: 215 12% 55%;
 
-    --accent: 215 80% 95%;
-    --accent-foreground: 215 90% 40%;
+    --accent: 174 40% 15%;
+    --accent-foreground: 174 55% 60%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 215 90% 50%;
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 174 55% 38%;
 
     --radius: 0.5rem;
 
-    /* Status colors */
+    /* Status */
     --status-success: 142 71% 45%;
-    --status-success-bg: 142 71% 95%;
+    --status-success-bg: 142 50% 15%;
     --status-warning: 38 92% 50%;
-    --status-warning-bg: 38 92% 95%;
+    --status-warning-bg: 38 60% 15%;
     --status-danger: 0 72% 51%;
-    --status-danger-bg: 0 72% 95%;
-    --status-info: 215 90% 50%;
-    --status-info-bg: 215 90% 95%;
+    --status-danger-bg: 0 50% 15%;
+    --status-info: 174 55% 38%;
+    --status-info-bg: 174 40% 12%;
 
-    /* CRM specific */
-    --crm-surface: 0 0% 100%;
-    --crm-surface-hover: 220 14% 97%;
-    --crm-header: 220 20% 14%;
-    --crm-header-foreground: 0 0% 100%;
-    --crm-kpi-gradient-start: 215 90% 50%;
-    --crm-kpi-gradient-end: 230 80% 60%;
+    /* CRM */
+    --crm-surface: 220 18% 10%;
+    --crm-surface-hover: 220 16% 13%;
+    --crm-header: 220 22% 6%;
+    --crm-header-foreground: 210 20% 90%;
 
-    --sidebar-background: 220 20% 14%;
-    --sidebar-foreground: 220 14% 80%;
-    --sidebar-primary: 215 90% 60%;
+    /* Sidebar */
+    --sidebar-background: 220 22% 8%;
+    --sidebar-foreground: 215 12% 55%;
+    --sidebar-primary: 174 55% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 20%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 20% 22%;
-    --sidebar-ring: 215 90% 50%;
+    --sidebar-accent: 220 18% 12%;
+    --sidebar-accent-foreground: 210 20% 85%;
+    --sidebar-border: 220 14% 15%;
+    --sidebar-ring: 174 55% 38%;
   }
 }
 
@@ -82,7 +81,7 @@
   }
 
   .crm-kpi-card {
-    @apply bg-card rounded-xl border p-5 transition-all duration-200 hover:shadow-md;
+    @apply bg-card rounded-xl border p-5 transition-all duration-200 hover:shadow-md hover:border-primary/30;
   }
 
   .status-renovado {
