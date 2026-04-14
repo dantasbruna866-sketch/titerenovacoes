@@ -10,10 +10,10 @@ interface InteractionIconsProps {
 
 export function InteractionIcons({ onWhatsApp, onSMS, onEmail, onCall }: InteractionIconsProps) {
   const items = [
-    { icon: MessageCircle, label: 'WhatsApp', onClick: onWhatsApp, color: 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50' },
-    { icon: MessageSquare, label: 'SMS', onClick: onSMS, color: 'bg-sky-900/30 text-sky-400 hover:bg-sky-900/50' },
-    { icon: Mail, label: 'Email', onClick: onEmail, color: 'bg-amber-900/30 text-amber-400 hover:bg-amber-900/50' },
-    { icon: Phone, label: 'Ligação', onClick: onCall, color: 'bg-violet-900/30 text-violet-400 hover:bg-violet-900/50' },
+    { icon: MessageCircle, label: 'WhatsApp', onClick: onWhatsApp, color: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' },
+    { icon: MessageSquare, label: 'SMS', onClick: onSMS, color: 'bg-sky-50 text-sky-600 hover:bg-sky-100' },
+    { icon: Mail, label: 'Email', onClick: onEmail, color: 'bg-amber-50 text-amber-600 hover:bg-amber-100' },
+    { icon: Phone, label: 'Ligação', onClick: onCall, color: 'bg-violet-50 text-violet-600 hover:bg-violet-100' },
   ];
 
   return (
