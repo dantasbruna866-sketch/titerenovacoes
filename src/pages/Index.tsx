@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Shield, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
+import logoIdentite from '@/assets/logo-identite.png';
 import { mockClients, type Client } from '@/data/mockData';
 import { DashboardCards } from '@/components/DashboardCards';
 import { ClientTable } from '@/components/ClientTable';
