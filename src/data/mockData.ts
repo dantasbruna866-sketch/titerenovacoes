@@ -39,13 +39,13 @@ export interface Client {
 export const vendedores = ['Ana Silva', 'Carlos Souza', 'Maria Oliveira', 'João Santos', 'Paula Lima'];
 
 export const tagColors: Record<string, { bg: string; text: string }> = {
-  'Caixa postal': { bg: 'bg-amber-900/30', text: 'text-amber-400' },
-  'Sem resposta': { bg: 'bg-red-900/30', text: 'text-red-400' },
-  'Já renovou': { bg: 'bg-emerald-900/30', text: 'text-emerald-400' },
-  'Cliente quente': { bg: 'bg-orange-900/30', text: 'text-orange-400' },
-  'Primeiro contato': { bg: 'bg-sky-900/30', text: 'text-sky-400' },
-  'Aguardando retorno': { bg: 'bg-violet-900/30', text: 'text-violet-400' },
-  'blacklist': { bg: 'bg-gray-700', text: 'text-gray-300' },
+  'Caixa postal': { bg: 'bg-amber-100', text: 'text-amber-700' },
+  'Sem resposta': { bg: 'bg-red-100', text: 'text-red-700' },
+  'Já renovou': { bg: 'bg-emerald-100', text: 'text-emerald-700' },
+  'Cliente quente': { bg: 'bg-orange-100', text: 'text-orange-700' },
+  'Primeiro contato': { bg: 'bg-sky-100', text: 'text-sky-700' },
+  'Aguardando retorno': { bg: 'bg-violet-100', text: 'text-violet-700' },
+  'blacklist': { bg: 'bg-gray-200', text: 'text-gray-600' },
 };
 
 export const mockClients: Client[] = [

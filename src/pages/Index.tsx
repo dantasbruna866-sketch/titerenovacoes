@@ -65,7 +65,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card border-b sticky top-0 z-40">
+      <header className="bg-card border-b sticky top-0 z-40 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={logoIdentite} alt="Identité Certificado Digital" className="h-9" />
