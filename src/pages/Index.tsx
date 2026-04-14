@@ -68,10 +68,7 @@ export default function Index() {
       <header className="bg-card border-b sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Shield className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-lg">CertRenova</span>
+            <img src={logoIdentite} alt="Identité Certificado Digital" className="h-9" />
           </div>
           <div className="relative w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
