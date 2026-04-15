@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Search } from 'lucide-react';
 import logoIdentite from '@/assets/logo-identite.png';
-import { mockClients, type Client } from '@/data/mockData';
+import { mockClients, type Client, type InteractionType, type CallStatus, type WhatsAppStatus, getEngagementLevel } from '@/data/mockData';
 import { DashboardCards } from '@/components/DashboardCards';
 import { ClientTable } from '@/components/ClientTable';
 import { ClientModal } from '@/components/ClientModal';
 import { Filters } from '@/components/Filters';
+import { RegisterInteractionModal } from '@/components/RegisterInteractionModal';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,10 +16,14 @@ export default function Index() {
   const { toast } = useToast();
   const [clients, setClients] = useState<Client[]>(mockClients);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [interactionClient, setInteractionClient] = useState<Client | null>(null);
   const [search, setSearch] = useState('');
   const [month, setMonth] = useState('4');
   const [year, setYear] = useState('2025');
   const [vendedor, setVendedor] = useState('all');
+  const [engajamento, setEngajamento] = useState('all');
+  const [tag, setTag] = useState('all');
+  const [tentativasMin, setTentativasMin] = useState('all');
 
   const filteredClients = useMemo(() => {
     return clients.filter(c => {
@@ -27,6 +32,9 @@ export default function Index() {
       if (month !== 'all' && venc.getMonth() + 1 !== parseInt(month)) return false;
       if (year !== 'all' && venc.getFullYear() !== parseInt(year)) return false;
       if (vendedor !== 'all' && c.vendedor !== vendedor) return false;
+      if (engajamento !== 'all' && c.engajamento !== engajamento) return false;
+      if (tag !== 'all' && !c.tags.includes(tag)) return false;
+      if (tentativasMin !== 'all' && c.tentativasContato < parseInt(tentativasMin)) return false;
       if (search) {
         const q = search.toLowerCase();
         return c.razaoSocial.toLowerCase().includes(q) ||
@@ -35,7 +43,7 @@ export default function Index() {
       }
       return true;
     });
-  }, [clients, month, year, vendedor, search]);
+  }, [clients, month, year, vendedor, engajamento, tag, tentativasMin, search]);
 
   const kpis = useMemo(() => {
     const total = filteredClients.length;
@@ -62,6 +70,55 @@ export default function Index() {
     toast({ title: 'Certificado renovado!', description: 'Status atualizado com sucesso.' });
   };
 
+  const handleAddObservation = useCallback((clientId: string, text: string) => {
+    setClients(prev => prev.map(c => {
+      if (c.id !== clientId) return c;
+      const newObs = {
+        id: `o-${Date.now()}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        text,
+        author: 'Você',
+      };
+      const updated = { ...c, observacoes: [newObs, ...c.observacoes] };
+      // Update selected client too
+      setSelectedClient(prev => prev?.id === clientId ? updated : prev);
+      return updated;
+    }));
+    toast({ title: 'Observação adicionada!' });
+  }, [toast]);
+
+  const handleRegisterInteraction = useCallback((data: {
+    type: InteractionType;
+    callStatus?: CallStatus;
+    whatsappStatus?: WhatsAppStatus;
+    message?: string;
+    notes?: string;
+  }) => {
+    if (!interactionClient) return;
+    const clientId = interactionClient.id;
+
+    setClients(prev => prev.map(c => {
+      if (c.id !== clientId) return c;
+      const newInteraction = {
+        id: `i-${Date.now()}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        ...data,
+      };
+      const updated = {
+        ...c,
+        interactions: [...c.interactions, newInteraction],
+        tentativasContato: c.tentativasContato + 1,
+      };
+      updated.engajamento = getEngagementLevel(updated);
+      // Update selected client if open
+      setSelectedClient(prev => prev?.id === clientId ? updated : prev);
+      return updated;
+    }));
+
+    setInteractionClient(null);
+    toast({ title: 'Interação registrada!', description: `${data.type === 'ligacao' ? 'Ligação' : data.type === 'whatsapp' ? 'WhatsApp' : data.type === 'email' ? 'Email' : 'SMS'} registrado(a).` });
+  }, [interactionClient, toast]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -83,21 +140,21 @@ export default function Index() {
       </header>
 
       <main className="max-w-[1600px] mx-auto px-6 py-6 space-y-6">
-        {/* Filters + Dashboard */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-xl font-bold">Gestão de Renovações</h1>
             <p className="text-sm text-muted-foreground">Acompanhe e gerencie as renovações de certificados digitais</p>
           </div>
           <Filters
             month={month} year={year} vendedor={vendedor}
+            engajamento={engajamento} tag={tag} tentativasMin={tentativasMin}
             onMonthChange={setMonth} onYearChange={setYear} onVendedorChange={setVendedor}
+            onEngajamentoChange={setEngajamento} onTagChange={setTag} onTentativasMinChange={setTentativasMin}
           />
         </div>
 
         <DashboardCards {...kpis} />
 
-        {/* Table */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -108,6 +165,7 @@ export default function Index() {
             clients={filteredClients}
             onSelectClient={setSelectedClient}
             onPullClient={handlePullClient}
+            onRegisterInteraction={setInteractionClient}
           />
         </div>
       </main>
@@ -118,6 +176,17 @@ export default function Index() {
           client={selectedClient}
           onClose={() => setSelectedClient(null)}
           onMarkRenewed={handleMarkRenewed}
+          onAddObservation={handleAddObservation}
+          onRegisterInteraction={setInteractionClient}
+        />
+      )}
+
+      {/* Register Interaction Modal */}
+      {interactionClient && (
+        <RegisterInteractionModal
+          clientName={interactionClient.razaoSocial}
+          onClose={() => setInteractionClient(null)}
+          onSubmit={handleRegisterInteraction}
         />
       )}
     </div>

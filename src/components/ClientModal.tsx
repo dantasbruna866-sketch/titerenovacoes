@@ -1,15 +1,21 @@
-import { X, Phone, MessageCircle, MessageSquare, CheckCircle2, Mail, Clock, AlertTriangle } from 'lucide-react';
-import type { Client, Interaction } from '@/data/mockData';
+import { useState } from 'react';
+import { X, Phone, MessageCircle, MessageSquare, CheckCircle2, Mail, Plus, History } from 'lucide-react';
+import type { Client, Interaction, Observation } from '@/data/mockData';
 import { StatusBadge, ComparativeIndicatorBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
+import { EngagementBadge } from './EngagementBadge';
+import { WhatsAppStatusIcon } from './WhatsAppStatusIcon';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 interface ClientModalProps {
   client: Client;
   onClose: () => void;
   onMarkRenewed: (id: string) => void;
+  onAddObservation: (clientId: string, text: string) => void;
+  onRegisterInteraction: (client: Client) => void;
 }
 
 const interactionTypeIcons: Record<string, React.ReactNode> = {
@@ -20,22 +26,15 @@ const interactionTypeIcons: Record<string, React.ReactNode> = {
 };
 
 const interactionTypeLabels: Record<string, string> = {
-  whatsapp: 'WhatsApp',
-  sms: 'SMS',
-  email: 'Email',
-  ligacao: 'Ligação',
+  whatsapp: 'WhatsApp', sms: 'SMS', email: 'Email', ligacao: 'Ligação',
 };
 
 const callStatusLabels: Record<string, string> = {
-  atendeu: 'Atendeu',
-  nao_atendeu: 'Não atendeu',
-  caixa_postal: 'Caixa postal',
+  atendeu: 'Atendeu', nao_atendeu: 'Não atendeu', caixa_postal: 'Caixa postal', numero_invalido: 'Número inválido',
 };
 
 const dispatchStatusLabels: Record<string, string> = {
-  entregue: 'Entregue',
-  lido: 'Lido',
-  falhou: 'Falhou',
+  entregue: 'Entregue', lido: 'Lido', falhou: 'Falhou',
 };
 
 function InteractionItem({ interaction }: { interaction: Interaction }) {
@@ -47,9 +46,12 @@ function InteractionItem({ interaction }: { interaction: Interaction }) {
           <span className="text-sm font-medium">{interactionTypeLabels[interaction.type]}</span>
           <span className="text-xs text-muted-foreground">{interaction.date}</span>
           {interaction.callStatus && (
-            <span className={`tag-chip text-xs ${interaction.callStatus === 'atendeu' ? 'status-renovado' : interaction.callStatus === 'caixa_postal' ? 'status-andamento' : 'status-nao-renovado'}`}>
+            <span className={`tag-chip text-xs ${interaction.callStatus === 'atendeu' ? 'status-renovado' : interaction.callStatus === 'caixa_postal' || interaction.callStatus === 'numero_invalido' ? 'status-nao-renovado' : 'status-andamento'}`}>
               {callStatusLabels[interaction.callStatus]}
             </span>
+          )}
+          {interaction.whatsappStatus && (
+            <WhatsAppStatusIcon status={interaction.whatsappStatus} />
           )}
           {interaction.dispatchStatus && (
             <span className={`tag-chip text-xs ${interaction.dispatchStatus === 'lido' ? 'status-renovado' : interaction.dispatchStatus === 'entregue' ? 'status-andamento' : 'status-nao-renovado'}`}>
@@ -71,7 +73,18 @@ function InteractionItem({ interaction }: { interaction: Interaction }) {
   );
 }
 
-export function ClientModal({ client, onClose, onMarkRenewed }: ClientModalProps) {
+export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, onRegisterInteraction }: ClientModalProps) {
+  const [newObs, setNewObs] = useState('');
+  const [showAllObs, setShowAllObs] = useState(false);
+
+  const handleAddObs = () => {
+    if (!newObs.trim()) return;
+    onAddObservation(client.id, newObs.trim());
+    setNewObs('');
+  };
+
+  const visibleObs = showAllObs ? client.observacoes : client.observacoes.slice(0, 2);
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
@@ -99,32 +112,61 @@ export function ClientModal({ client, onClose, onMarkRenewed }: ClientModalProps
                 <div><span className="text-muted-foreground">Email:</span> <span className="font-medium">{client.email}</span></div>
                 <div><span className="text-muted-foreground">Vencimento:</span> <span className="font-medium">{new Date(client.dataVencimento).toLocaleDateString('pt-BR')}</span></div>
                 <div><span className="text-muted-foreground">Renovação:</span> <span className="font-medium">{client.dataRenovacao ? new Date(client.dataRenovacao).toLocaleDateString('pt-BR') : 'Em aberto'}</span></div>
+                <div><span className="text-muted-foreground">Tentativas:</span> <span className="font-medium">{client.tentativasContato}</span></div>
               </div>
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <StatusBadge status={client.status} />
+                <EngagementBadge level={client.engajamento} />
                 <ComparativeIndicatorBadge indicator={client.indicadorComparativo} />
-                {client.tags.map(tag => <TagChip key={tag} tag={tag} />)}
+                {client.tags.filter(t => t !== 'blacklist').map(tag => <TagChip key={tag} tag={tag} />)}
               </div>
               {client.vendedor && <p className="text-sm mt-2"><span className="text-muted-foreground">Vendedor:</span> <span className="font-medium">{client.vendedor}</span></p>}
             </section>
 
-            {client.observacao && (
-              <section>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Observação</h3>
-                <p className="text-sm bg-muted/50 rounded-lg p-3">{client.observacao}</p>
-              </section>
-            )}
+            {/* Observations */}
+            <section>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Observações</h3>
+                {client.observacoes.length > 2 && (
+                  <button onClick={() => setShowAllObs(!showAllObs)} className="text-xs text-primary flex items-center gap-1 hover:underline">
+                    <History className="h-3 w-3" />
+                    {showAllObs ? 'Mostrar menos' : `Ver todas (${client.observacoes.length})`}
+                  </button>
+                )}
+              </div>
+              <div className="space-y-2 mb-3">
+                {visibleObs.map(obs => (
+                  <div key={obs.id} className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-sm">{obs.text}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{obs.author} · {new Date(obs.date).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                ))}
+                {client.observacoes.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma observação.</p>}
+              </div>
+              <div className="flex gap-2">
+                <Textarea
+                  placeholder="Adicionar observação..."
+                  rows={2}
+                  value={newObs}
+                  onChange={e => setNewObs(e.target.value)}
+                  className="flex-1"
+                />
+                <Button size="sm" className="self-end" onClick={handleAddObs} disabled={!newObs.trim()}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </section>
 
             <Separator />
 
             {/* Timeline */}
             <section>
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Timeline de Interações</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Timeline de Interações ({client.interactions.length})</h3>
               {client.interactions.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Nenhuma interação registrada.</p>
               ) : (
                 <div className="divide-y">
-                  {client.interactions.map(i => <InteractionItem key={i.id} interaction={i} />)}
+                  {[...client.interactions].reverse().map(i => <InteractionItem key={i.id} interaction={i} />)}
                 </div>
               )}
             </section>
@@ -134,14 +176,14 @@ export function ClientModal({ client, onClose, onMarkRenewed }: ClientModalProps
         {/* Actions */}
         <div className="p-4 border-t bg-muted/30">
           <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => onRegisterInteraction(client)}>
+              <Plus className="h-4 w-4" /> Registrar Interação
+            </Button>
             <Button variant="outline" size="sm" className="gap-2">
               <Phone className="h-4 w-4" /> Ligar
             </Button>
             <Button variant="outline" size="sm" className="gap-2">
               <MessageCircle className="h-4 w-4" /> WhatsApp
-            </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <MessageSquare className="h-4 w-4" /> SMS
             </Button>
             <Button size="sm" className="gap-2" onClick={() => onMarkRenewed(client.id)}>
               <CheckCircle2 className="h-4 w-4" /> Marcar Renovado
