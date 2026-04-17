@@ -73,18 +73,39 @@ export function RegisterInteractionModal({ clientName, onClose, onSubmit }: Regi
           </div>
 
           {type === 'ligacao' && (
-            <div>
-              <Label className="text-sm font-medium">Status da ligação</Label>
-              <Select value={callStatus} onValueChange={(v) => setCallStatus(v as CallStatus)}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="atendeu">✅ Atendeu</SelectItem>
-                  <SelectItem value="nao_atendeu">❌ Não atendeu</SelectItem>
-                  <SelectItem value="caixa_postal">📪 Caixa postal / Bloqueio</SelectItem>
-                  <SelectItem value="numero_invalido">⛔ Número inválido</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <>
+              <div>
+                <Label className="text-sm font-medium">Status da ligação</Label>
+                <Select value={callStatus} onValueChange={(v) => setCallStatus(v as CallStatus)}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="atendeu">✅ Atendeu</SelectItem>
+                    <SelectItem value="nao_atendeu">❌ Não atendeu</SelectItem>
+                    <SelectItem value="caixa_postal">📪 Caixa postal / Bloqueio</SelectItem>
+                    <SelectItem value="numero_invalido">⛔ Número inválido</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Duração da ligação (minutos)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  className="mt-1"
+                  placeholder="0"
+                  value={durationMinutes}
+                  onChange={e => setDurationMinutes(e.target.value)}
+                />
+              </div>
+              <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
+                spokeWithClient ? 'bg-emerald-50 text-emerald-700' : 'bg-muted text-muted-foreground'
+              }`}>
+                {spokeWithClient ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                <span>
+                  {spokeWithClient ? 'Falou com o cliente (automático)' : 'Não falou com o cliente (automático)'}
+                </span>
+              </div>
+            </>
           )}
 
           {type === 'whatsapp' && (
