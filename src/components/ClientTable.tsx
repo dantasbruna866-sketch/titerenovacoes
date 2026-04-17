@@ -1,4 +1,4 @@
-import { Eye, UserPlus, FileText, Phone, MessageCircle, MessageSquare, Mail, Hash, Plus, Clock, CheckCircle2 } from 'lucide-react';
+import { Eye, UserPlus, FileText, Phone, MessageCircle, MessageSquare, Mail, Hash, Plus, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 import type { Client, Interaction, InteractionType } from '@/data/mockData';
 import { StatusBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
@@ -56,8 +56,8 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/50 border-b">
-              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Cliente / Telefone</th>
-              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Última Renovação</th>
+              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Cliente</th>
+              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Renovações</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Status</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Engajamento</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Tentativas</th>
@@ -84,22 +84,92 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                   className="border-b hover:bg-crm-surface-hover transition-colors cursor-pointer"
                   onClick={() => onSelectClient(client)}
                 >
-                  {/* Cliente + Telefone */}
+                  {/* Cliente + ações de contato rápido */}
                   <td className="px-4 py-3">
-                    <div className="font-medium max-w-[220px] truncate">{client.razaoSocial}</div>
-                    <div className="text-xs text-muted-foreground truncate">{client.nomeSocio} · {client.cnpj}</div>
-                    <div className="text-xs text-foreground/80 mt-0.5 flex items-center gap-1">
-                      <Phone className="h-3 w-3 text-muted-foreground" />
-                      {client.telefone}
+                    <div className="flex items-start gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium max-w-[220px] truncate">{client.razaoSocial}</div>
+                        <div className="text-xs text-muted-foreground truncate">{client.nomeSocio} · {client.cnpj}</div>
+                        <div className="text-xs text-foreground/80 mt-0.5 flex items-center gap-1">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          {client.telefone}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a
+                              href={`https://wa.me/55${client.telefone.replace(/\D/g, '')}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="h-7 w-7 rounded flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>WhatsApp</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a
+                              href={`tel:${client.telefone.replace(/\D/g, '')}`}
+                              className="h-7 w-7 rounded flex items-center justify-center bg-violet-50 text-violet-600 hover:bg-violet-100 transition-colors"
+                            >
+                              <Phone className="h-3.5 w-3.5" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>Ligar</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a
+                              href={`sms:${client.telefone.replace(/\D/g, '')}`}
+                              className="h-7 w-7 rounded flex items-center justify-center bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>SMS</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a
+                              href={`mailto:${client.email}`}
+                              className="h-7 w-7 rounded flex items-center justify-center bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"
+                            >
+                              <Mail className="h-3.5 w-3.5" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>E-mail</TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
                   </td>
 
-                  {/* Última Renovação */}
+                  {/* Renovações: anterior → mais recente (atual) */}
                   <td className="px-4 py-3 text-xs whitespace-nowrap">
-                    {client.dataUltimaRenovacao ? (
-                      <span className="font-medium">
-                        {new Date(client.dataUltimaRenovacao).toLocaleDateString('pt-BR')}
-                      </span>
+                    {client.dataUltimaRenovacao || client.dataRenovacao ? (
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] uppercase text-muted-foreground w-14">Anterior</span>
+                          {client.dataUltimaRenovacao ? (
+                            <span className="text-muted-foreground">
+                              {new Date(client.dataUltimaRenovacao).toLocaleDateString('pt-BR')}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground italic">—</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] uppercase text-primary w-14">Atual</span>
+                          {client.dataRenovacao ? (
+                            <span className="font-semibold text-primary">
+                              {new Date(client.dataRenovacao).toLocaleDateString('pt-BR')}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground italic">Pendente</span>
+                          )}
+                        </div>
+                      </div>
                     ) : (
                       <span className="text-muted-foreground italic">Nunca renovou</span>
                     )}
@@ -108,9 +178,9 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                   <td className="px-4 py-3"><StatusBadge status={client.status} /></td>
                   <td className="px-4 py-3"><EngagementBadge level={client.engajamento} /></td>
 
-                  {/* Tentativas: total + ícones por canal */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                  {/* Tentativas: total + ícones por canal (vertical) */}
+                  <td className="px-4 py-3 align-top">
+                    <div className="flex flex-col gap-1">
                       <span className={`inline-flex items-center gap-1 text-xs font-semibold ${
                         client.tentativasContato >= 5 ? 'text-red-600' :
                         client.tentativasContato >= 3 ? 'text-amber-600' : 'text-foreground'
@@ -119,11 +189,11 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                         {client.tentativasContato}
                       </span>
                       {usedChannels.length > 0 && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-col gap-0.5">
                           {usedChannels.map(ch => (
                             <Tooltip key={ch}>
                               <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-muted/60">
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/60 w-fit">
                                   {channelIcon[ch]}
                                   <span className="text-[10px] font-medium text-muted-foreground">{counts[ch]}</span>
                                 </span>
