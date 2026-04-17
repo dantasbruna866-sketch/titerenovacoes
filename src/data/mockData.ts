@@ -23,6 +23,10 @@ export interface Interaction {
   message?: string;
   dispatchStatus?: DispatchStatus;
   notes?: string;
+  /** Duração em minutos da ligação (somente quando type === 'ligacao') */
+  durationMinutes?: number;
+  /** Conseguiu falar com o cliente — automático: true quando callStatus === 'atendeu' */
+  spokeWithClient?: boolean;
 }
 
 export interface Client {
@@ -97,7 +101,7 @@ export const mockClients: Client[] = [
       { id: 'o2', date: '2025-04-08 09:00', text: 'Cliente fiel, renova sempre no mesmo período. Preferência por e-CNPJ A1.', author: 'Ana Silva' },
     ],
     interactions: [
-      { id: 'i1', date: '2025-04-08 09:30', type: 'ligacao', callStatus: 'atendeu', notes: 'Confirmou interesse na renovação' },
+      { id: 'i1', date: '2025-04-08 09:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 6, spokeWithClient: true, notes: 'Confirmou interesse na renovação' },
       { id: 'i2', date: '2025-04-09 14:00', type: 'whatsapp', whatsappStatus: 'respondido', message: 'Olá Roberto, segue o link para renovação.', dispatchStatus: 'lido' },
       { id: 'i3', date: '2025-04-10 10:15', type: 'email', message: 'Confirmação de renovação enviada.', dispatchStatus: 'entregue' },
     ],
@@ -113,9 +117,9 @@ export const mockClients: Client[] = [
       { id: 'o3', date: '2025-04-07 16:00', text: 'Está comparando preços com concorrentes.', author: 'Carlos Souza' },
     ],
     interactions: [
-      { id: 'i4', date: '2025-04-05 11:00', type: 'ligacao', callStatus: 'nao_atendeu' },
+      { id: 'i4', date: '2025-04-05 11:00', type: 'ligacao', callStatus: 'nao_atendeu', durationMinutes: 0, spokeWithClient: false },
       { id: 'i5', date: '2025-04-06 09:00', type: 'sms', message: 'Seu certificado vence em breve!', dispatchStatus: 'entregue' },
-      { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', notes: 'Disse que vai pensar' },
+      { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'visualizou',
   },
@@ -129,8 +133,8 @@ export const mockClients: Client[] = [
       { id: 'o4', date: '2025-04-05 10:00', text: 'Tentativas de contato sem sucesso.', author: 'Sistema' },
     ],
     interactions: [
-      { id: 'i7', date: '2025-04-01 10:00', type: 'ligacao', callStatus: 'caixa_postal' },
-      { id: 'i8', date: '2025-04-03 14:00', type: 'ligacao', callStatus: 'caixa_postal' },
+      { id: 'i7', date: '2025-04-01 10:00', type: 'ligacao', callStatus: 'caixa_postal', durationMinutes: 0, spokeWithClient: false },
+      { id: 'i8', date: '2025-04-03 14:00', type: 'ligacao', callStatus: 'caixa_postal', durationMinutes: 0, spokeWithClient: false },
       { id: 'i9', date: '2025-04-05 09:30', type: 'whatsapp', whatsappStatus: 'entregue', message: 'Precisamos falar sobre seu certificado.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 5, engajamento: 'problema',
@@ -145,7 +149,7 @@ export const mockClients: Client[] = [
       { id: 'o5', date: '2025-04-12 11:00', text: 'Muito interessada, pediu proposta por email.', author: 'Maria Oliveira' },
     ],
     interactions: [
-      { id: 'i10', date: '2025-04-12 08:45', type: 'ligacao', callStatus: 'atendeu', notes: 'Pediu proposta formal' },
+      { id: 'i10', date: '2025-04-12 08:45', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 8, spokeWithClient: true, notes: 'Pediu proposta formal' },
       { id: 'i11', date: '2025-04-12 10:00', type: 'email', message: 'Proposta de renovação A3.', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
@@ -160,7 +164,7 @@ export const mockClients: Client[] = [
       { id: 'o6', date: '2025-04-08 12:00', text: 'Renovação rápida sem objeções.', author: 'João Santos' },
     ],
     interactions: [
-      { id: 'i12', date: '2025-04-07 09:00', type: 'ligacao', callStatus: 'atendeu', notes: 'Quer renovar imediatamente' },
+      { id: 'i12', date: '2025-04-07 09:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 5, spokeWithClient: true, notes: 'Quer renovar imediatamente' },
       { id: 'i13', date: '2025-04-08 11:00', type: 'whatsapp', whatsappStatus: 'respondido', message: 'Certificado renovado com sucesso!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
@@ -175,7 +179,7 @@ export const mockClients: Client[] = [
       { id: 'o7', date: '2025-04-10 10:00', text: 'Reclamou do preço na última interação.', author: 'Paula Lima' },
     ],
     interactions: [
-      { id: 'i14', date: '2025-04-02 16:00', type: 'ligacao', callStatus: 'atendeu', notes: 'Reclamou do reajuste' },
+      { id: 'i14', date: '2025-04-02 16:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 12, spokeWithClient: true, notes: 'Reclamou do reajuste' },
       { id: 'i15', date: '2025-04-10 09:00', type: 'email', message: 'Proposta com desconto especial.', dispatchStatus: 'entregue' },
       { id: 'i16', date: '2025-04-12 14:00', type: 'whatsapp', whatsappStatus: 'visualizado', message: 'Lúcia, temos condições especiais para você!', dispatchStatus: 'lido' },
     ],
@@ -191,7 +195,7 @@ export const mockClients: Client[] = [
       { id: 'o8', date: '2025-04-13 10:30', text: 'Novo cliente, nunca teve certificado conosco.', author: 'Ana Silva' },
     ],
     interactions: [
-      { id: 'i17', date: '2025-04-13 10:00', type: 'ligacao', callStatus: 'atendeu', notes: 'Interessado, pediu mais info' },
+      { id: 'i17', date: '2025-04-13 10:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 7, spokeWithClient: true, notes: 'Interessado, pediu mais info' },
     ],
     blacklist: false, tentativasContato: 1, engajamento: 'engajado',
   },
