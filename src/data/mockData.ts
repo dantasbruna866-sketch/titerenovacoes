@@ -23,6 +23,10 @@ export interface Interaction {
   message?: string;
   dispatchStatus?: DispatchStatus;
   notes?: string;
+  /** Duração em minutos da ligação (somente quando type === 'ligacao') */
+  durationMinutes?: number;
+  /** Conseguiu falar com o cliente — automático: true quando callStatus === 'atendeu' */
+  spokeWithClient?: boolean;
 }
 
 export interface Client {
