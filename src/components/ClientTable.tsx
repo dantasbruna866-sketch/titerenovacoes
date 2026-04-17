@@ -95,7 +95,7 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                           {client.telefone}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <div className="grid grid-cols-2 gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <a
@@ -178,36 +178,29 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                   <td className="px-4 py-3"><StatusBadge status={client.status} /></td>
                   <td className="px-4 py-3"><EngagementBadge level={client.engajamento} /></td>
 
-                  {/* Tentativas: total + ícones por canal (vertical) */}
+                  {/* Tentativas: contagem por canal alinhada com a última interação */}
                   <td className="px-4 py-3 align-top">
-                    <div className="flex flex-col gap-1">
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold ${
-                        client.tentativasContato >= 5 ? 'text-red-600' :
-                        client.tentativasContato >= 3 ? 'text-amber-600' : 'text-foreground'
-                      }`}>
-                        <Hash className="h-3 w-3" />
-                        {client.tentativasContato}
-                      </span>
-                      {usedChannels.length > 0 && (
-                        <div className="flex flex-col gap-0.5">
-                          {usedChannels.map(ch => (
-                            <Tooltip key={ch}>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/60 w-fit">
-                                  {channelIcon[ch]}
-                                  <span className="text-[10px] font-medium text-muted-foreground">{counts[ch]}</span>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>{counts[ch]} {channelLabel[ch]}</TooltipContent>
-                            </Tooltip>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    {Object.keys(lastByChannel).length === 0 ? (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    ) : (
+                      <div className="flex flex-col gap-0.5">
+                        {channelOrder.filter(ch => lastByChannel[ch]).map(ch => (
+                          <Tooltip key={ch}>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/60 w-fit text-xs">
+                                {channelIcon[ch]}
+                                <span className="font-medium text-muted-foreground">{counts[ch]}</span>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>{counts[ch]} {channelLabel[ch]}</TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </div>
+                    )}
                   </td>
 
                   {/* Última Interação por canal: ícone + data/hora */}
-                  <td className="px-4 py-3" onClick={(e) => { e.stopPropagation(); onViewAllInteractions(client); }}>
+                  <td className="px-4 py-3 align-top" onClick={(e) => { e.stopPropagation(); onViewAllInteractions(client); }}>
                     {Object.keys(lastByChannel).length === 0 ? (
                       <span className="text-muted-foreground text-xs italic">Nenhuma</span>
                     ) : (
@@ -215,7 +208,7 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                         {channelOrder.filter(ch => lastByChannel[ch]).map(ch => {
                           const it = lastByChannel[ch]!;
                           return (
-                            <div key={ch} className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                            <div key={ch} className="flex items-center gap-1.5 text-xs whitespace-nowrap h-[22px]">
                               {channelIcon[ch]}
                               <span className="text-muted-foreground">{formatDateTime(it.date)}</span>
                               {ch === 'ligacao' && typeof it.durationMinutes === 'number' && it.durationMinutes > 0 && (
