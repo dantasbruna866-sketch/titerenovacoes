@@ -170,6 +170,7 @@ export default function Index() {
             onSelectClient={setSelectedClient}
             onPullClient={handlePullClient}
             onRegisterInteraction={setInteractionClient}
+            onViewAllInteractions={setAllInteractionsClient}
           />
         </div>
       </main>
@@ -191,6 +192,15 @@ export default function Index() {
           clientName={interactionClient.razaoSocial}
           onClose={() => setInteractionClient(null)}
           onSubmit={handleRegisterInteraction}
+        />
+      )}
+
+      {/* All Interactions Popup */}
+      {allInteractionsClient && (
+        <AllInteractionsModal
+          clientName={allInteractionsClient.razaoSocial}
+          interactions={allInteractionsClient.interactions}
+          onClose={() => setAllInteractionsClient(null)}
         />
       )}
     </div>
