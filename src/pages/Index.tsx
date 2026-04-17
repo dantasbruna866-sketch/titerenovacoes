@@ -7,6 +7,7 @@ import { ClientTable } from '@/components/ClientTable';
 import { ClientModal } from '@/components/ClientModal';
 import { Filters } from '@/components/Filters';
 import { RegisterInteractionModal } from '@/components/RegisterInteractionModal';
+import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
