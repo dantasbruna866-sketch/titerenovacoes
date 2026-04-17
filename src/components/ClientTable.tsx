@@ -94,6 +94,9 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                           <Phone className="h-3 w-3 text-muted-foreground" />
                           {client.telefone}
                         </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          Aberta em {new Date(client.dataAbertura).toLocaleDateString('pt-BR')}
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <Tooltip>
