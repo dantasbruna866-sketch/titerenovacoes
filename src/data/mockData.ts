@@ -32,6 +32,7 @@ export interface Interaction {
 export interface Client {
   id: string;
   cnpj: string;
+  dataAbertura: string;
   razaoSocial: string;
   nomeSocio: string;
   socioAdministrador: boolean;
