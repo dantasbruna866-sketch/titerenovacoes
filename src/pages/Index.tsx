@@ -18,6 +18,7 @@ export default function Index() {
   const [clients, setClients] = useState<Client[]>(mockClients);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [interactionClient, setInteractionClient] = useState<Client | null>(null);
+  const [allInteractionsClient, setAllInteractionsClient] = useState<Client | null>(null);
   const [search, setSearch] = useState('');
   const [month, setMonth] = useState('4');
   const [year, setYear] = useState('2025');
@@ -94,6 +95,8 @@ export default function Index() {
     whatsappStatus?: WhatsAppStatus;
     message?: string;
     notes?: string;
+    durationMinutes?: number;
+    spokeWithClient?: boolean;
   }) => {
     if (!interactionClient) return;
     const clientId = interactionClient.id;
@@ -111,8 +114,8 @@ export default function Index() {
         tentativasContato: c.tentativasContato + 1,
       };
       updated.engajamento = getEngagementLevel(updated);
-      // Update selected client if open
       setSelectedClient(prev => prev?.id === clientId ? updated : prev);
+      setAllInteractionsClient(prev => prev?.id === clientId ? updated : prev);
       return updated;
     }));
 
