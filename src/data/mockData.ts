@@ -91,7 +91,7 @@ export function getEngagementLevel(client: Client): EngagementLevel {
 
 export const mockClients: Client[] = [
   {
-    id: '1', cnpj: '12.345.678/0001-90', razaoSocial: 'Tech Solutions Ltda', nomeSocio: 'Roberto Almeida',
+    id: '1', cnpj: '12.345.678/0001-90', dataAbertura 17/04/2025', razaoSocial: 'Tech Solutions Ltda', nomeSocio: 'Roberto Almeida',
     socioAdministrador: true, telefone: '(11) 99876-5432', email: 'roberto@techsolutions.com.br',
     dataVencimento: '2025-05-15', dataRenovacao: '2025-04-10', status: 'renovado',
     renovouAnoAnterior: true, dataUltimaRenovacao: '2024-04-12', indicadorComparativo: 'mesmo_mes',
