@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Search } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
 import logoIdentite from '@/assets/logo-identite.png';
 import { mockClients, type Client, type InteractionType, type CallStatus, type WhatsAppStatus, getEngagementLevel } from '@/data/mockData';
 import { DashboardCards } from '@/components/DashboardCards';
@@ -20,8 +21,10 @@ export default function Index() {
   const [interactionClient, setInteractionClient] = useState<Client | null>(null);
   const [allInteractionsClient, setAllInteractionsClient] = useState<Client | null>(null);
   const [search, setSearch] = useState('');
-  const [month, setMonth] = useState('4');
-  const [year, setYear] = useState('2025');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(2025, 3, 1),
+    to: new Date(2025, 3, 30),
+  });
   const [vendedor, setVendedor] = useState('all');
   const [engajamento, setEngajamento] = useState('all');
   const [tag, setTag] = useState('all');
@@ -31,8 +34,13 @@ export default function Index() {
     return clients.filter(c => {
       if (c.blacklist) return false;
       const venc = new Date(c.dataVencimento);
-      if (month !== 'all' && venc.getMonth() + 1 !== parseInt(month)) return false;
-      if (year !== 'all' && venc.getFullYear() !== parseInt(year)) return false;
+      if (dateRange?.from) {
+        const from = new Date(dateRange.from);
+        from.setHours(0, 0, 0, 0);
+        const to = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+        to.setHours(23, 59, 59, 999);
+        if (venc < from || venc > to) return false;
+      }
       if (vendedor !== 'all' && c.vendedor !== vendedor) return false;
       if (engajamento !== 'all' && c.engajamento !== engajamento) return false;
       if (tag !== 'all' && !c.tags.includes(tag)) return false;
@@ -45,7 +53,7 @@ export default function Index() {
       }
       return true;
     });
-  }, [clients, month, year, vendedor, engajamento, tag, tentativasMin, search]);
+  }, [clients, dateRange, vendedor, engajamento, tag, tentativasMin, search]);
 
   const kpis = useMemo(() => {
     const total = filteredClients.length;
@@ -150,9 +158,9 @@ export default function Index() {
             <p className="text-sm text-muted-foreground">Acompanhe e gerencie as renovações de certificados digitais</p>
           </div>
           <Filters
-            month={month} year={year} vendedor={vendedor}
+            dateRange={dateRange} vendedor={vendedor}
             engajamento={engajamento} tag={tag} tentativasMin={tentativasMin}
-            onMonthChange={setMonth} onYearChange={setYear} onVendedorChange={setVendedor}
+            onDateRangeChange={setDateRange} onVendedorChange={setVendedor}
             onEngajamentoChange={setEngajamento} onTagChange={setTag} onTentativasMinChange={setTentativasMin}
           />
         </div>

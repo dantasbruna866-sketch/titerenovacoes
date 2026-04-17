@@ -1,52 +1,76 @@
+import { useState } from 'react';
+import { CalendarIcon, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import type { DateRange } from 'react-day-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { vendedores, allTags } from '@/data/mockData';
 
 interface FiltersProps {
-  month: string;
-  year: string;
+  dateRange: DateRange | undefined;
   vendedor: string;
   engajamento: string;
   tag: string;
   tentativasMin: string;
-  onMonthChange: (v: string) => void;
-  onYearChange: (v: string) => void;
+  onDateRangeChange: (range: DateRange | undefined) => void;
   onVendedorChange: (v: string) => void;
   onEngajamentoChange: (v: string) => void;
   onTagChange: (v: string) => void;
   onTentativasMinChange: (v: string) => void;
 }
 
-const months = [
-  { value: 'all', label: 'Todos os meses' },
-  { value: '1', label: 'Janeiro' }, { value: '2', label: 'Fevereiro' },
-  { value: '3', label: 'Março' }, { value: '4', label: 'Abril' },
-  { value: '5', label: 'Maio' }, { value: '6', label: 'Junho' },
-  { value: '7', label: 'Julho' }, { value: '8', label: 'Agosto' },
-  { value: '9', label: 'Setembro' }, { value: '10', label: 'Outubro' },
-  { value: '11', label: 'Novembro' }, { value: '12', label: 'Dezembro' },
-];
-
 export function Filters({
-  month, year, vendedor, engajamento, tag, tentativasMin,
-  onMonthChange, onYearChange, onVendedorChange, onEngajamentoChange, onTagChange, onTentativasMinChange,
+  dateRange, vendedor, engajamento, tag, tentativasMin,
+  onDateRangeChange, onVendedorChange, onEngajamentoChange, onTagChange, onTentativasMinChange,
 }: FiltersProps) {
+  const [open, setOpen] = useState(false);
+
+  const label = dateRange?.from
+    ? dateRange.to
+      ? `${format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – ${format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}`
+      : format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
+    : 'Selecione o período de vencimento';
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select value={month} onValueChange={onMonthChange}>
-        <SelectTrigger className="w-[140px] h-9 text-sm"><SelectValue placeholder="Mês" /></SelectTrigger>
-        <SelectContent>
-          {months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
-        </SelectContent>
-      </Select>
-
-      <Select value={year} onValueChange={onYearChange}>
-        <SelectTrigger className="w-[100px] h-9 text-sm"><SelectValue placeholder="Ano" /></SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="2025">2025</SelectItem>
-          <SelectItem value="2024">2024</SelectItem>
-        </SelectContent>
-      </Select>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              "h-9 justify-start text-left text-sm font-normal min-w-[280px]",
+              !dateRange?.from && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {label}
+            {dateRange?.from && (
+              <X
+                className="ml-auto h-4 w-4 opacity-60 hover:opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDateRangeChange(undefined);
+                }}
+              />
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="range"
+            selected={dateRange}
+            onSelect={onDateRangeChange}
+            numberOfMonths={2}
+            locale={ptBR}
+            initialFocus
+            className={cn("p-3 pointer-events-auto")}
+          />
+        </PopoverContent>
+      </Popover>
 
       <Select value={vendedor} onValueChange={onVendedorChange}>
         <SelectTrigger className="w-[160px] h-9 text-sm"><SelectValue placeholder="Vendedor" /></SelectTrigger>
