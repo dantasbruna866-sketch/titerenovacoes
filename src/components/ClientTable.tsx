@@ -13,6 +13,7 @@ interface ClientTableProps {
   onPullClient: (clientId: string) => void;
   onRegisterInteraction: (client: Client) => void;
   onViewAllInteractions: (client: Client) => void;
+  onContact: (client: Client, channel: InteractionType) => void;
 }
 
 const channelOrder: InteractionType[] = ['ligacao', 'whatsapp', 'email', 'sms'];
@@ -49,7 +50,7 @@ function getLastByChannel(interactions: Interaction[]): Partial<Record<Interacti
   return map;
 }
 
-export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions }: ClientTableProps) {
+export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact }: ClientTableProps) {
   return (
     <div className="crm-card overflow-hidden">
       <div className="overflow-x-auto">
@@ -101,46 +102,52 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                       <div className="grid grid-cols-2 gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <a
-                              href={`https://wa.me/55${client.telefone.replace(/\D/g, '')}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="h-7 w-7 rounded flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                            <button
+                              onClick={() => onContact(client, 'whatsapp')}
+                              className="relative h-7 w-7 rounded flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
                             >
                               <MessageCircle className="h-3.5 w-3.5" />
-                            </a>
+                              {client.whatsappUnread && client.whatsappUnread > 0 && (
+                                <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                                  {client.whatsappUnread > 9 ? '9+' : client.whatsappUnread}
+                                </span>
+                              )}
+                            </button>
                           </TooltipTrigger>
-                          <TooltipContent>WhatsApp</TooltipContent>
+                          <TooltipContent>
+                            WhatsApp{client.whatsappUnread ? ` · ${client.whatsappUnread} não lida(s)` : ''}
+                          </TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <a
-                              href={`tel:${client.telefone.replace(/\D/g, '')}`}
+                            <button
+                              onClick={() => onContact(client, 'ligacao')}
                               className="h-7 w-7 rounded flex items-center justify-center bg-violet-50 text-violet-600 hover:bg-violet-100 transition-colors"
                             >
                               <Phone className="h-3.5 w-3.5" />
-                            </a>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent>Ligar</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <a
-                              href={`sms:${client.telefone.replace(/\D/g, '')}`}
+                            <button
+                              onClick={() => onContact(client, 'sms')}
                               className="h-7 w-7 rounded flex items-center justify-center bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
-                            </a>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent>SMS</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <a
-                              href={`mailto:${client.email}`}
+                            <button
+                              onClick={() => onContact(client, 'email')}
                               className="h-7 w-7 rounded flex items-center justify-center bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"
                             >
                               <Mail className="h-3.5 w-3.5" />
-                            </a>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent>E-mail</TooltipContent>
                         </Tooltip>
