@@ -4,6 +4,7 @@ import { StatusBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
 import { EngagementBadge } from './EngagementBadge';
 import { WhatsAppStatusIcon } from './WhatsAppStatusIcon';
+import { ProcessStatusIcons } from './ProcessStatusIcons';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -63,6 +64,7 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Engajamento</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Tentativas</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Última Interação</th>
+              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Informações</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Tags</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Vendedor</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Obs</th>
@@ -235,6 +237,10 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                         })}
                       </div>
                     )}
+                  </td>
+
+                  <td className="px-4 py-3 align-top" onClick={(e) => e.stopPropagation()}>
+                    <ProcessStatusIcons status={client.processStatus} />
                   </td>
 
                   <td className="px-4 py-3">

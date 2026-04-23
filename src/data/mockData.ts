@@ -6,6 +6,22 @@ export type WhatsAppStatus = 'enviado' | 'entregue' | 'visualizado' | 'respondid
 export type ComparativeIndicator = 'mesmo_mes' | 'atrasado' | 'nao_renovou';
 export type EngagementLevel = 'engajado' | 'visualizou' | 'frio' | 'problema';
 
+/** Estado de cada etapa do processo de renovação */
+export type ProcessStepState = 'pending' | 'done';
+
+export interface ProcessStatus {
+  /** Link de pagamento gerado e enviado ao cliente */
+  paymentLink: ProcessStepState;
+  /** Pagamento efetuado pelo cliente */
+  payment: ProcessStepState;
+  /** Agendamento da videoconferência */
+  scheduling: ProcessStepState;
+  /** Videoconferência realizada */
+  videoConference: ProcessStepState;
+  /** Certificado digital emitido */
+  certificate: ProcessStepState;
+}
+
 export interface Observation {
   id: string;
   date: string;
@@ -53,6 +69,8 @@ export interface Client {
   engajamento: EngagementLevel;
   /** Quantidade de mensagens recebidas do cliente no WhatsApp ainda não lidas pelo vendedor */
   whatsappUnread?: number;
+  /** Estado das etapas do processo de renovação (pagamento, agendamento, videoconf, certificado) */
+  processStatus: ProcessStatus;
 }
 
 export const vendedores = ['Ana Silva', 'Carlos Souza', 'Maria Oliveira', 'João Santos', 'Paula Lima'];
@@ -109,6 +127,7 @@ export const mockClients: Client[] = [
       { id: 'i3', date: '2025-04-10 10:15', type: 'email', message: 'Confirmação de renovação enviada.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'engajado',
+    processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
     id: '2', cnpj: '98.765.432/0001-10', dataAbertura: '2015-07-22', razaoSocial: 'Comércio Express S.A.', nomeSocio: 'Fernanda Costa',
@@ -125,6 +144,7 @@ export const mockClients: Client[] = [
       { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'visualizou', whatsappUnread: 2,
+    processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '3', cnpj: '11.222.333/0001-44', dataAbertura: '2020-01-10', razaoSocial: 'Distribuidora Norte Ltda', nomeSocio: 'Paulo Mendes',
@@ -141,6 +161,7 @@ export const mockClients: Client[] = [
       { id: 'i9', date: '2025-04-05 09:30', type: 'whatsapp', whatsappStatus: 'entregue', message: 'Precisamos falar sobre seu certificado.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 5, engajamento: 'problema',
+    processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '4', cnpj: '55.666.777/0001-88', dataAbertura: '2019-11-05', razaoSocial: 'Logística Rápida ME', nomeSocio: 'Sandra Ferreira',
@@ -156,6 +177,7 @@ export const mockClients: Client[] = [
       { id: 'i11', date: '2025-04-12 10:00', type: 'email', message: 'Proposta de renovação A3.', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '5', cnpj: '33.444.555/0001-22', dataAbertura: '2012-05-30', razaoSocial: 'Construções Sólidas Ltda', nomeSocio: 'Marcos Vieira',
@@ -171,6 +193,7 @@ export const mockClients: Client[] = [
       { id: 'i13', date: '2025-04-08 11:00', type: 'whatsapp', whatsappStatus: 'respondido', message: 'Certificado renovado com sucesso!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
     id: '6', cnpj: '77.888.999/0001-66', dataAbertura: '2010-09-18', razaoSocial: 'Importações Global S.A.', nomeSocio: 'Lúcia Rodrigues',
@@ -187,6 +210,7 @@ export const mockClients: Client[] = [
       { id: 'i16', date: '2025-04-12 14:00', type: 'whatsapp', whatsappStatus: 'visualizado', message: 'Lúcia, temos condições especiais para você!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 4, engajamento: 'visualizou', whatsappUnread: 1,
+    processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '7', cnpj: '22.111.000/0001-33', dataAbertura: '2023-02-14', razaoSocial: 'Auto Peças Central Ltda', nomeSocio: 'José Moreira',
@@ -201,6 +225,7 @@ export const mockClients: Client[] = [
       { id: 'i17', date: '2025-04-13 10:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 7, spokeWithClient: true, notes: 'Interessado, pediu mais info' },
     ],
     blacklist: false, tentativasContato: 1, engajamento: 'engajado',
+    processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '8', cnpj: '44.555.666/0001-77', dataAbertura: '2021-06-08', razaoSocial: 'Fraudes & Cia Ltda', nomeSocio: 'Antônio Duvidoso',
@@ -213,5 +238,6 @@ export const mockClients: Client[] = [
     ],
     interactions: [],
     blacklist: true, tentativasContato: 0, engajamento: 'problema',
+    processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
 ];
