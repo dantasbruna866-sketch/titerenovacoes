@@ -6,6 +6,22 @@ export type WhatsAppStatus = 'enviado' | 'entregue' | 'visualizado' | 'respondid
 export type ComparativeIndicator = 'mesmo_mes' | 'atrasado' | 'nao_renovou';
 export type EngagementLevel = 'engajado' | 'visualizou' | 'frio' | 'problema';
 
+/** Estado de cada etapa do processo de renovação */
+export type ProcessStepState = 'pending' | 'done';
+
+export interface ProcessStatus {
+  /** Link de pagamento gerado e enviado ao cliente */
+  paymentLink: ProcessStepState;
+  /** Pagamento efetuado pelo cliente */
+  payment: ProcessStepState;
+  /** Agendamento da videoconferência */
+  scheduling: ProcessStepState;
+  /** Videoconferência realizada */
+  videoConference: ProcessStepState;
+  /** Certificado digital emitido */
+  certificate: ProcessStepState;
+}
+
 export interface Observation {
   id: string;
   date: string;
@@ -53,6 +69,8 @@ export interface Client {
   engajamento: EngagementLevel;
   /** Quantidade de mensagens recebidas do cliente no WhatsApp ainda não lidas pelo vendedor */
   whatsappUnread?: number;
+  /** Estado das etapas do processo de renovação (pagamento, agendamento, videoconf, certificado) */
+  processStatus: ProcessStatus;
 }
 
 export const vendedores = ['Ana Silva', 'Carlos Souza', 'Maria Oliveira', 'João Santos', 'Paula Lima'];
