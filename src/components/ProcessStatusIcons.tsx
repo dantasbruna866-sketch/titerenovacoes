@@ -26,11 +26,20 @@ function stepClass(state: ProcessStepState): string {
     : 'bg-amber-400 text-white';
 }
 
-export function ProcessStatusIcons({ status }: { status: ProcessStatus }) {
+const DEFAULT_STATUS: ProcessStatus = {
+  paymentLink: 'pending',
+  payment: 'pending',
+  scheduling: 'pending',
+  videoConference: 'pending',
+  certificate: 'pending',
+};
+
+export function ProcessStatusIcons({ status }: { status?: ProcessStatus }) {
+  const safeStatus = status ?? DEFAULT_STATUS;
   return (
     <div className="flex items-center gap-1">
       {STEPS.map(({ key, icon: Icon, pendingLabel, doneLabel }) => {
-        const state = status[key];
+        const state = safeStatus[key];
         return (
           <Tooltip key={key}>
             <TooltipTrigger asChild>
