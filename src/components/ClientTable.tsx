@@ -4,6 +4,7 @@ import { StatusBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
 import { EngagementBadge } from './EngagementBadge';
 import { WhatsAppStatusIcon } from './WhatsAppStatusIcon';
+import { ProcessStatusIcons } from './ProcessStatusIcons';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
