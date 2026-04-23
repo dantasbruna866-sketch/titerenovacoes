@@ -124,7 +124,7 @@ export const mockClients: Client[] = [
       { id: 'i5', date: '2025-04-06 09:00', type: 'sms', message: 'Seu certificado vence em breve!', dispatchStatus: 'entregue' },
       { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
-    blacklist: false, tentativasContato: 3, engajamento: 'visualizou',
+    blacklist: false, tentativasContato: 3, engajamento: 'visualizou', whatsappUnread: 2,
   },
   {
     id: '3', cnpj: '11.222.333/0001-44', dataAbertura: '2020-01-10', razaoSocial: 'Distribuidora Norte Ltda', nomeSocio: 'Paulo Mendes',
@@ -186,7 +186,7 @@ export const mockClients: Client[] = [
       { id: 'i15', date: '2025-04-10 09:00', type: 'email', message: 'Proposta com desconto especial.', dispatchStatus: 'entregue' },
       { id: 'i16', date: '2025-04-12 14:00', type: 'whatsapp', whatsappStatus: 'visualizado', message: 'Lúcia, temos condições especiais para você!', dispatchStatus: 'lido' },
     ],
-    blacklist: false, tentativasContato: 4, engajamento: 'visualizou',
+    blacklist: false, tentativasContato: 4, engajamento: 'visualizou', whatsappUnread: 1,
   },
   {
     id: '7', cnpj: '22.111.000/0001-33', dataAbertura: '2023-02-14', razaoSocial: 'Auto Peças Central Ltda', nomeSocio: 'José Moreira',
