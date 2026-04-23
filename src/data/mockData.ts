@@ -127,7 +127,7 @@ export const mockClients: Client[] = [
       { id: 'i3', date: '2025-04-10 10:15', type: 'email', message: 'Confirmação de renovação enviada.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'engajado',
-  },
+    processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   {
     id: '2', cnpj: '98.765.432/0001-10', dataAbertura: '2015-07-22', razaoSocial: 'Comércio Express S.A.', nomeSocio: 'Fernanda Costa',
     socioAdministrador: true, telefone: '(21) 98765-4321', email: 'fernanda@comercioexpress.com.br',
@@ -143,6 +143,7 @@ export const mockClients: Client[] = [
       { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'visualizou', whatsappUnread: 2,
+    processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '3', cnpj: '11.222.333/0001-44', dataAbertura: '2020-01-10', razaoSocial: 'Distribuidora Norte Ltda', nomeSocio: 'Paulo Mendes',
@@ -159,6 +160,7 @@ export const mockClients: Client[] = [
       { id: 'i9', date: '2025-04-05 09:30', type: 'whatsapp', whatsappStatus: 'entregue', message: 'Precisamos falar sobre seu certificado.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 5, engajamento: 'problema',
+    processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '4', cnpj: '55.666.777/0001-88', dataAbertura: '2019-11-05', razaoSocial: 'Logística Rápida ME', nomeSocio: 'Sandra Ferreira',
@@ -205,6 +207,7 @@ export const mockClients: Client[] = [
       { id: 'i16', date: '2025-04-12 14:00', type: 'whatsapp', whatsappStatus: 'visualizado', message: 'Lúcia, temos condições especiais para você!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 4, engajamento: 'visualizou', whatsappUnread: 1,
+    processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '7', cnpj: '22.111.000/0001-33', dataAbertura: '2023-02-14', razaoSocial: 'Auto Peças Central Ltda', nomeSocio: 'José Moreira',
@@ -231,5 +234,6 @@ export const mockClients: Client[] = [
     ],
     interactions: [],
     blacklist: true, tentativasContato: 0, engajamento: 'problema',
+    processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
 ];
