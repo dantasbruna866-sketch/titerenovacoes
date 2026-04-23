@@ -51,6 +51,8 @@ export interface Client {
   blacklist: boolean;
   tentativasContato: number;
   engajamento: EngagementLevel;
+  /** Quantidade de mensagens recebidas do cliente no WhatsApp ainda não lidas pelo vendedor */
+  whatsappUnread?: number;
 }
 
 export const vendedores = ['Ana Silva', 'Carlos Souza', 'Maria Oliveira', 'João Santos', 'Paula Lima'];
