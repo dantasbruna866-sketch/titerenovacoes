@@ -128,6 +128,7 @@ export const mockClients: Client[] = [
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'engajado',
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
+  },
   {
     id: '2', cnpj: '98.765.432/0001-10', dataAbertura: '2015-07-22', razaoSocial: 'Comércio Express S.A.', nomeSocio: 'Fernanda Costa',
     socioAdministrador: true, telefone: '(21) 98765-4321', email: 'fernanda@comercioexpress.com.br',
@@ -176,6 +177,7 @@ export const mockClients: Client[] = [
       { id: 'i11', date: '2025-04-12 10:00', type: 'email', message: 'Proposta de renovação A3.', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '5', cnpj: '33.444.555/0001-22', dataAbertura: '2012-05-30', razaoSocial: 'Construções Sólidas Ltda', nomeSocio: 'Marcos Vieira',
@@ -191,6 +193,7 @@ export const mockClients: Client[] = [
       { id: 'i13', date: '2025-04-08 11:00', type: 'whatsapp', whatsappStatus: 'respondido', message: 'Certificado renovado com sucesso!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
     id: '6', cnpj: '77.888.999/0001-66', dataAbertura: '2010-09-18', razaoSocial: 'Importações Global S.A.', nomeSocio: 'Lúcia Rodrigues',
@@ -222,6 +225,7 @@ export const mockClients: Client[] = [
       { id: 'i17', date: '2025-04-13 10:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 7, spokeWithClient: true, notes: 'Interessado, pediu mais info' },
     ],
     blacklist: false, tentativasContato: 1, engajamento: 'engajado',
+    processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
     id: '8', cnpj: '44.555.666/0001-77', dataAbertura: '2021-06-08', razaoSocial: 'Fraudes & Cia Ltda', nomeSocio: 'Antônio Duvidoso',
