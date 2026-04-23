@@ -9,6 +9,7 @@ import { ClientModal } from '@/components/ClientModal';
 import { Filters } from '@/components/Filters';
 import { RegisterInteractionModal } from '@/components/RegisterInteractionModal';
 import { AllInteractionsModal } from '@/components/AllInteractionsModal';
+import { ContactModal } from '@/components/ContactModal';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +21,7 @@ export default function Index() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [interactionClient, setInteractionClient] = useState<Client | null>(null);
   const [allInteractionsClient, setAllInteractionsClient] = useState<Client | null>(null);
+  const [contactState, setContactState] = useState<{ client: Client; channel: InteractionType } | null>(null);
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2025, 3, 1),
@@ -179,6 +181,7 @@ export default function Index() {
             onPullClient={handlePullClient}
             onRegisterInteraction={setInteractionClient}
             onViewAllInteractions={setAllInteractionsClient}
+            onContact={(client, channel) => setContactState({ client, channel })}
           />
         </div>
       </main>
@@ -209,6 +212,15 @@ export default function Index() {
           clientName={allInteractionsClient.razaoSocial}
           interactions={allInteractionsClient.interactions}
           onClose={() => setAllInteractionsClient(null)}
+        />
+      )}
+
+      {/* Contact Modal (WhatsApp / Ligação / SMS / E-mail) */}
+      {contactState && (
+        <ContactModal
+          client={contactState.client}
+          channel={contactState.channel}
+          onClose={() => setContactState(null)}
         />
       )}
     </div>
