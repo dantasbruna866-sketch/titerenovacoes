@@ -5,6 +5,7 @@ import { StatusBadge, ComparativeIndicatorBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
 import { EngagementBadge } from './EngagementBadge';
 import { WhatsAppStatusIcon } from './WhatsAppStatusIcon';
+import { ProcessStatusIcons } from './ProcessStatusIcons';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -110,6 +111,7 @@ export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, 
                 <div><span className="text-muted-foreground">Administrador:</span> <span className="font-medium">{client.socioAdministrador ? 'Sim' : 'Não'}</span></div>
                 <div><span className="text-muted-foreground">Telefone:</span> <span className="font-medium">{client.telefone}</span></div>
                 <div><span className="text-muted-foreground">Email:</span> <span className="font-medium">{client.email}</span></div>
+                <div><span className="text-muted-foreground">Retorno:</span> <span className="font-medium">{client.dataRetorno ? new Date(client.dataRetorno.replace(' ', 'T')).toLocaleString('pt-BR') : 'Não agendado'}</span></div>
                 <div><span className="text-muted-foreground">Vencimento:</span> <span className="font-medium">{new Date(client.dataVencimento).toLocaleDateString('pt-BR')}</span></div>
                 <div><span className="text-muted-foreground">Renovação:</span> <span className="font-medium">{client.dataRenovacao ? new Date(client.dataRenovacao).toLocaleDateString('pt-BR') : 'Em aberto'}</span></div>
                 <div><span className="text-muted-foreground">Tentativas:</span> <span className="font-medium">{client.tentativasContato}</span></div>
@@ -121,6 +123,16 @@ export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, 
                 {client.tags.filter(t => t !== 'blacklist').map(tag => <TagChip key={tag} tag={tag} />)}
               </div>
               {client.vendedor && <p className="text-sm mt-2"><span className="text-muted-foreground">Vendedor:</span> <span className="font-medium">{client.vendedor}</span></p>}
+            </section>
+
+            <section>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Informações do Processo</h3>
+              <div className="space-y-3">
+                <ProcessStatusIcons status={client.processStatus} />
+                <p className="text-sm text-muted-foreground">
+                  Acompanhe link de pagamento, pagamento, agendamento, videoconferência e emissão do certificado.
+                </p>
+              </div>
             </section>
 
             {/* Observations */}

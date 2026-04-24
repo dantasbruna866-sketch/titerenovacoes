@@ -1,10 +1,9 @@
-import { Eye, UserPlus, FileText, Phone, MessageCircle, MessageSquare, Mail, Hash, Plus, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Eye, UserPlus, FileText, Phone, MessageCircle, MessageSquare, Mail, Plus, Clock, CheckCircle2, CalendarClock } from 'lucide-react';
 import type { Client, Interaction, InteractionType } from '@/data/mockData';
 import { StatusBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
 import { EngagementBadge } from './EngagementBadge';
 import { WhatsAppStatusIcon } from './WhatsAppStatusIcon';
-import { ProcessStatusIcons } from './ProcessStatusIcons';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -64,8 +63,8 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Engajamento</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Tentativas</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Última Interação</th>
-              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Informações</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Tags</th>
+              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Retorno</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Vendedor</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Obs</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Ações</th>
@@ -239,10 +238,6 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                     )}
                   </td>
 
-                  <td className="px-4 py-3 align-top" onClick={(e) => e.stopPropagation()}>
-                    <ProcessStatusIcons status={client.processStatus} />
-                  </td>
-
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1 max-w-[150px]">
                       {client.tags.filter(t => t !== 'blacklist').slice(0, 2).map(tag => <TagChip key={tag} tag={tag} />)}
@@ -250,6 +245,17 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                         <span className="tag-chip bg-muted text-muted-foreground">+{client.tags.filter(t => t !== 'blacklist').length - 2}</span>
                       )}
                     </div>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    {client.dataRetorno ? (
+                      <div className="inline-flex items-center gap-1.5 rounded-md bg-muted/70 px-2 py-1 text-xs text-foreground/80 whitespace-nowrap">
+                        <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
+                        {formatDateTime(client.dataRetorno)}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-xs italic">Sem retorno</span>
+                    )}
                   </td>
 
                   <td className="px-4 py-3">

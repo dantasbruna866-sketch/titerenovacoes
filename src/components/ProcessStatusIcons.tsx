@@ -20,10 +20,9 @@ const STEPS: StepDef[] = [
 ];
 
 function stepClass(state: ProcessStepState): string {
-  // verde = feito, amarelo = pendente
   return state === 'done'
-    ? 'bg-emerald-500 text-white'
-    : 'bg-amber-400 text-white';
+    ? 'status-renovado border border-transparent'
+    : 'status-andamento border border-transparent';
 }
 
 const DEFAULT_STATUS: ProcessStatus = {

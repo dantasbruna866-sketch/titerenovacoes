@@ -49,6 +49,7 @@ export interface Client {
   id: string;
   cnpj: string;
   dataAbertura: string;
+  dataRetorno?: string | null;
   razaoSocial: string;
   nomeSocio: string;
   socioAdministrador: boolean;
@@ -112,7 +113,7 @@ export function getEngagementLevel(client: Client): EngagementLevel {
 
 export const mockClients: Client[] = [
   {
-    id: '1', cnpj: '12.345.678/0001-90', dataAbertura: '2018-03-15', razaoSocial: 'Tech Solutions Ltda', nomeSocio: 'Roberto Almeida',
+    id: '1', cnpj: '12.345.678/0001-90', dataAbertura: '2018-03-15', dataRetorno: '2025-04-15 09:00', razaoSocial: 'Tech Solutions Ltda', nomeSocio: 'Roberto Almeida',
     socioAdministrador: true, telefone: '(11) 99876-5432', email: 'roberto@techsolutions.com.br',
     dataVencimento: '2025-05-15', dataRenovacao: '2025-04-10', status: 'renovado',
     renovouAnoAnterior: true, dataUltimaRenovacao: '2024-04-12', indicadorComparativo: 'mesmo_mes',
@@ -130,7 +131,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
-    id: '2', cnpj: '98.765.432/0001-10', dataAbertura: '2015-07-22', razaoSocial: 'Comércio Express S.A.', nomeSocio: 'Fernanda Costa',
+    id: '2', cnpj: '98.765.432/0001-10', dataAbertura: '2015-07-22', dataRetorno: '2025-04-18 14:30', razaoSocial: 'Comércio Express S.A.', nomeSocio: 'Fernanda Costa',
     socioAdministrador: true, telefone: '(21) 98765-4321', email: 'fernanda@comercioexpress.com.br',
     dataVencimento: '2025-04-30', dataRenovacao: null, status: 'em_andamento',
     renovouAnoAnterior: true, dataUltimaRenovacao: '2024-03-20', indicadorComparativo: 'atrasado',
@@ -147,7 +148,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
-    id: '3', cnpj: '11.222.333/0001-44', dataAbertura: '2020-01-10', razaoSocial: 'Distribuidora Norte Ltda', nomeSocio: 'Paulo Mendes',
+    id: '3', cnpj: '11.222.333/0001-44', dataAbertura: '2020-01-10', dataRetorno: null, razaoSocial: 'Distribuidora Norte Ltda', nomeSocio: 'Paulo Mendes',
     socioAdministrador: false, telefone: '(31) 97654-3210', email: 'paulo@distnorte.com.br',
     dataVencimento: '2025-04-20', dataRenovacao: null, status: 'nao_renovado',
     renovouAnoAnterior: false, dataUltimaRenovacao: null, indicadorComparativo: 'nao_renovou',
@@ -164,7 +165,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
-    id: '4', cnpj: '55.666.777/0001-88', dataAbertura: '2019-11-05', razaoSocial: 'Logística Rápida ME', nomeSocio: 'Sandra Ferreira',
+    id: '4', cnpj: '55.666.777/0001-88', dataAbertura: '2019-11-05', dataRetorno: '2025-04-16 11:00', razaoSocial: 'Logística Rápida ME', nomeSocio: 'Sandra Ferreira',
     socioAdministrador: true, telefone: '(41) 96543-2109', email: 'sandra@lograpida.com.br',
     dataVencimento: '2025-05-01', dataRenovacao: null, status: 'em_andamento',
     renovouAnoAnterior: true, dataUltimaRenovacao: '2024-05-03', indicadorComparativo: 'mesmo_mes',
@@ -180,7 +181,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'pending', certificate: 'pending' },
   },
   {
-    id: '5', cnpj: '33.444.555/0001-22', dataAbertura: '2012-05-30', razaoSocial: 'Construções Sólidas Ltda', nomeSocio: 'Marcos Vieira',
+    id: '5', cnpj: '33.444.555/0001-22', dataAbertura: '2012-05-30', dataRetorno: null, razaoSocial: 'Construções Sólidas Ltda', nomeSocio: 'Marcos Vieira',
     socioAdministrador: true, telefone: '(51) 95432-1098', email: 'marcos@construsolidas.com.br',
     dataVencimento: '2025-04-10', dataRenovacao: '2025-04-08', status: 'renovado',
     renovouAnoAnterior: true, dataUltimaRenovacao: '2024-04-15', indicadorComparativo: 'mesmo_mes',
@@ -196,7 +197,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
-    id: '6', cnpj: '77.888.999/0001-66', dataAbertura: '2010-09-18', razaoSocial: 'Importações Global S.A.', nomeSocio: 'Lúcia Rodrigues',
+    id: '6', cnpj: '77.888.999/0001-66', dataAbertura: '2010-09-18', dataRetorno: '2025-04-19 16:00', razaoSocial: 'Importações Global S.A.', nomeSocio: 'Lúcia Rodrigues',
     socioAdministrador: true, telefone: '(61) 94321-0987', email: 'lucia@impglobal.com.br',
     dataVencimento: '2025-04-25', dataRenovacao: null, status: 'nao_renovado',
     renovouAnoAnterior: true, dataUltimaRenovacao: '2024-04-10', indicadorComparativo: 'atrasado',
@@ -213,7 +214,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
-    id: '7', cnpj: '22.111.000/0001-33', dataAbertura: '2023-02-14', razaoSocial: 'Auto Peças Central Ltda', nomeSocio: 'José Moreira',
+    id: '7', cnpj: '22.111.000/0001-33', dataAbertura: '2023-02-14', dataRetorno: '2025-04-17 10:30', razaoSocial: 'Auto Peças Central Ltda', nomeSocio: 'José Moreira',
     socioAdministrador: false, telefone: '(71) 93210-9876', email: 'jose@autocentral.com.br',
     dataVencimento: '2025-05-20', dataRenovacao: null, status: 'em_andamento',
     renovouAnoAnterior: false, dataUltimaRenovacao: null, indicadorComparativo: 'nao_renovou',
@@ -228,7 +229,7 @@ export const mockClients: Client[] = [
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
-    id: '8', cnpj: '44.555.666/0001-77', dataAbertura: '2021-06-08', razaoSocial: 'Fraudes & Cia Ltda', nomeSocio: 'Antônio Duvidoso',
+    id: '8', cnpj: '44.555.666/0001-77', dataAbertura: '2021-06-08', dataRetorno: null, razaoSocial: 'Fraudes & Cia Ltda', nomeSocio: 'Antônio Duvidoso',
     socioAdministrador: true, telefone: '(11) 91111-1111', email: 'antonio@fraudes.com.br',
     dataVencimento: '2025-04-15', dataRenovacao: null, status: 'nao_renovado',
     renovouAnoAnterior: false, dataUltimaRenovacao: null, indicadorComparativo: 'nao_renovou',
