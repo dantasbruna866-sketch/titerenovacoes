@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, Download } from 'lucide-react';
+import { Search, Download, BarChart3 } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
 import logoIdentite from '@/assets/logo-identite.png';
 import { mockProspects, type Prospect, type ProspectStatus } from '@/data/mockProspects';
 import { type Client, type InteractionType, type CallStatus, type WhatsAppStatus, getEngagementLevel } from '@/data/mockData';
@@ -8,11 +9,19 @@ import { ClientModal } from '@/components/ClientModal';
 import { RegisterInteractionModal } from '@/components/RegisterInteractionModal';
 import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
+import { Filters } from '@/components/Filters';
+import { SalesByDayModal } from '@/components/SalesByDayModal';
 import { StatusTabs, getProspectTab, type ProspectTab } from '@/components/StatusTabs';
 import { ModuleNav } from '@/components/ModuleNav';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+
+const DEFAULT_SALES_DATE = new Date().toISOString().split('T')[0];
+
+function getDatePart(value: string) {
+  return value.split(' ')[0];
+}
 
 /**
  * Adapta um Prospect para o formato de Client esperado pela tabela compartilhada.
@@ -45,11 +54,30 @@ export default function Prospeccoes() {
   const [allInteractionsClient, setAllInteractionsClient] = useState<Client | null>(null);
   const [contactState, setContactState] = useState<{ client: Client; channel: InteractionType } | null>(null);
   const [search, setSearch] = useState('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [vendedor, setVendedor] = useState('all');
+  const [engajamento, setEngajamento] = useState('all');
+  const [tag, setTag] = useState('all');
+  const [tentativasMin, setTentativasMin] = useState('all');
   const [activeTab, setActiveTab] = useState<ProspectTab>('todos');
+  const [salesModalOpen, setSalesModalOpen] = useState(false);
+  const [selectedSalesDate, setSelectedSalesDate] = useState(DEFAULT_SALES_DATE);
 
   const filteredProspects = useMemo(() => {
     return prospects.filter(p => {
       if (p.blacklist) return false;
+      const venc = new Date(p.dataVencimento);
+      if (dateRange?.from) {
+        const from = new Date(dateRange.from);
+        from.setHours(0, 0, 0, 0);
+        const to = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+        to.setHours(23, 59, 59, 999);
+        if (venc < from || venc > to) return false;
+      }
+      if (vendedor !== 'all' && p.vendedor !== vendedor) return false;
+      if (engajamento !== 'all' && p.engajamento !== engajamento) return false;
+      if (tag !== 'all' && !p.tags.includes(tag)) return false;
+      if (tentativasMin !== 'all' && p.tentativasContato < parseInt(tentativasMin)) return false;
       if (search) {
         const q = search.toLowerCase();
         return p.razaoSocial.toLowerCase().includes(q) ||
@@ -59,7 +87,7 @@ export default function Prospeccoes() {
       }
       return true;
     });
-  }, [prospects, search]);
+  }, [prospects, search, dateRange, vendedor, engajamento, tag, tentativasMin]);
 
   const tabFilteredProspects = useMemo(() => {
     if (activeTab === 'todos') return filteredProspects;
@@ -148,6 +176,25 @@ export default function Prospeccoes() {
     return { total, naoContatados, emFunil, convertidos, taxa };
   }, [filteredProspects]);
 
+  const salesByDay = useMemo(() => {
+    return prospects
+      .filter((prospect) => prospect.saleInfo && getDatePart(prospect.saleInfo.paidAt) === selectedSalesDate)
+      .map((prospect) => ({
+        id: prospect.id,
+        clientName: prospect.razaoSocial,
+        cnpj: prospect.cnpj,
+        certificateLabel: prospect.saleInfo!.certificateLabel,
+        paidAt: prospect.saleInfo!.paidAt,
+        amountPaid: prospect.saleInfo!.amountPaid,
+      }))
+      .sort((a, b) => a.paidAt.localeCompare(b.paidAt));
+  }, [prospects, selectedSalesDate]);
+
+  const salesTotal = useMemo(
+    () => salesByDay.reduce((acc, item) => acc + item.amountPaid, 0),
+    [salesByDay]
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b sticky top-0 z-40 shadow-sm">
@@ -169,15 +216,36 @@ export default function Prospeccoes() {
       </header>
 
       <main className="max-w-[1600px] mx-auto px-6 py-6 space-y-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold">Gestão de Prospecções</h1>
-            <p className="text-sm text-muted-foreground">Lista fria importada da base do EmpresAqui — converta novos clientes em primeiras emissões</p>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div>
+              <h1 className="text-xl font-bold">Gestão de Prospecções</h1>
+              <p className="text-sm text-muted-foreground">Lista fria importada da base do EmpresAqui — converta novos clientes em primeiras emissões</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" className="gap-2" onClick={() => setSalesModalOpen(true)}>
+                <BarChart3 className="h-4 w-4" />
+                Ver vendas por dia
+              </Button>
+              <Button onClick={handleImportEmpresAqui} className="gap-2">
+                <Download className="h-4 w-4" />
+                Importar base do EmpresAqui
+              </Button>
+            </div>
           </div>
-          <Button onClick={handleImportEmpresAqui} className="gap-2">
-            <Download className="h-4 w-4" />
-            Importar base do EmpresAqui
-          </Button>
+
+          <Filters
+            dateRange={dateRange}
+            vendedor={vendedor}
+            engajamento={engajamento}
+            tag={tag}
+            tentativasMin={tentativasMin}
+            onDateRangeChange={setDateRange}
+            onVendedorChange={setVendedor}
+            onEngajamentoChange={setEngajamento}
+            onTagChange={setTag}
+            onTentativasMinChange={setTentativasMin}
+          />
         </div>
 
         {/* KPIs simples */}
@@ -246,6 +314,15 @@ export default function Prospeccoes() {
           onClose={() => setContactState(null)}
         />
       )}
+
+      <SalesByDayModal
+        open={salesModalOpen}
+        onOpenChange={setSalesModalOpen}
+        selectedDate={selectedSalesDate}
+        onDateChange={setSelectedSalesDate}
+        items={salesByDay}
+        totalRevenue={salesTotal}
+      />
     </div>
   );
 }

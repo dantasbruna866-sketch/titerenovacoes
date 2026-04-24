@@ -22,6 +22,15 @@ export interface ProcessStatus {
   certificate: ProcessStepState;
 }
 
+export interface SaleInfo {
+  /** Data em que o pagamento foi confirmado */
+  paidAt: string;
+  /** Produto/certificado vendido */
+  certificateLabel: string;
+  /** Valor efetivamente pago */
+  amountPaid: number;
+}
+
 export interface Observation {
   id: string;
   date: string;
@@ -70,6 +79,8 @@ export interface Client {
   engajamento: EngagementLevel;
   /** Quantidade de mensagens recebidas do cliente no WhatsApp ainda não lidas pelo vendedor */
   whatsappUnread?: number;
+  /** Dados comerciais da venda confirmada */
+  saleInfo?: SaleInfo | null;
   /** Estado das etapas do processo de renovação (pagamento, agendamento, videoconf, certificado) */
   processStatus: ProcessStatus;
 }
@@ -128,6 +139,7 @@ export const mockClients: Client[] = [
       { id: 'i3', date: '2025-04-10 10:15', type: 'email', message: 'Confirmação de renovação enviada.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 09:12', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
@@ -145,6 +157,7 @@ export const mockClients: Client[] = [
       { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'visualizou', whatsappUnread: 2,
+    saleInfo: { paidAt: '2026-04-24 09:48', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -162,6 +175,7 @@ export const mockClients: Client[] = [
       { id: 'i9', date: '2025-04-05 09:30', type: 'whatsapp', whatsappStatus: 'entregue', message: 'Precisamos falar sobre seu certificado.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 5, engajamento: 'problema',
+    saleInfo: null,
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -178,6 +192,7 @@ export const mockClients: Client[] = [
       { id: 'i11', date: '2025-04-12 10:00', type: 'email', message: 'Proposta de renovação A3.', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 11:18', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -194,6 +209,7 @@ export const mockClients: Client[] = [
       { id: 'i13', date: '2025-04-08 11:00', type: 'whatsapp', whatsappStatus: 'respondido', message: 'Certificado renovado com sucesso!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 10:05', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
@@ -211,6 +227,7 @@ export const mockClients: Client[] = [
       { id: 'i16', date: '2025-04-12 14:00', type: 'whatsapp', whatsappStatus: 'visualizado', message: 'Lúcia, temos condições especiais para você!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 4, engajamento: 'visualizou', whatsappUnread: 1,
+    saleInfo: null,
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -226,6 +243,7 @@ export const mockClients: Client[] = [
       { id: 'i17', date: '2025-04-13 10:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 7, spokeWithClient: true, notes: 'Interessado, pediu mais info' },
     ],
     blacklist: false, tentativasContato: 1, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 13:40', certificateLabel: 'e-CPF A1', amountPaid: 169.9 },
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -239,6 +257,7 @@ export const mockClients: Client[] = [
     ],
     interactions: [],
     blacklist: true, tentativasContato: 0, engajamento: 'problema',
+    saleInfo: null,
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
 ];
