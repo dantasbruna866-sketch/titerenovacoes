@@ -177,19 +177,21 @@ export default function Index() {
         <DashboardCards {...kpis} />
 
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Clientes ({filteredClients.length})
-            </h2>
-          </div>
-          <ClientTable
+          <StatusTabs
             clients={filteredClients}
-            onSelectClient={setSelectedClient}
-            onPullClient={handlePullClient}
-            onRegisterInteraction={setInteractionClient}
-            onViewAllInteractions={setAllInteractionsClient}
-            onContact={(client, channel) => setContactState({ client, channel })}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
           />
+          <div className="mt-3">
+            <ClientTable
+              clients={tabFilteredClients}
+              onSelectClient={setSelectedClient}
+              onPullClient={handlePullClient}
+              onRegisterInteraction={setInteractionClient}
+              onViewAllInteractions={setAllInteractionsClient}
+              onContact={(client, channel) => setContactState({ client, channel })}
+            />
+          </div>
         </div>
       </main>
 
