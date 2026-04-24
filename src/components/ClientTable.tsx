@@ -9,6 +9,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 interface ClientTableProps {
   clients: Client[];
+  dateColumnLabel?: string;
+  dateColumnVariant?: 'renewals' | 'opening';
   onSelectClient: (client: Client) => void;
   onPullClient: (clientId: string) => void;
   onRegisterInteraction: (client: Client) => void;
@@ -50,7 +52,7 @@ function getLastByChannel(interactions: Interaction[]): Partial<Record<Interacti
   return map;
 }
 
-export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact }: ClientTableProps) {
+export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateColumnVariant = 'renewals', onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact }: ClientTableProps) {
   return (
     <div className="crm-card overflow-hidden">
       <div className="overflow-x-auto">
@@ -58,7 +60,7 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
           <thead>
             <tr className="bg-muted/50 border-b">
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Cliente</th>
-              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Renovações</th>
+              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">{dateColumnLabel}</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Status</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Engajamento</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Tentativas</th>
@@ -156,9 +158,13 @@ export function ClientTable({ clients, onSelectClient, onPullClient, onRegisterI
                     </div>
                   </td>
 
-                  {/* Renovações: anterior → mais recente (atual) */}
+                  {/* Coluna de data contextual */}
                   <td className="px-4 py-3 text-xs whitespace-nowrap">
-                    {client.dataUltimaRenovacao || client.dataRenovacao ? (
+                    {dateColumnVariant === 'opening' ? (
+                      <span className="font-medium text-foreground">
+                        {new Date(client.dataAbertura).toLocaleDateString('pt-BR')}
+                      </span>
+                    ) : client.dataUltimaRenovacao || client.dataRenovacao ? (
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1">
                           <span className="text-[10px] uppercase text-muted-foreground w-14">Anterior</span>
