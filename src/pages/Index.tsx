@@ -17,7 +17,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-const RECEITA_POR_RENOVACAO = 250;
+const DEFAULT_SALES_DATE = new Date().toISOString().split('T')[0];
+
+function getDatePart(value: string) {
+  return value.split(' ')[0];
+}
 
 export default function Index() {
   const { toast } = useToast();
@@ -37,6 +41,7 @@ export default function Index() {
   const [tentativasMin, setTentativasMin] = useState('all');
   const [activeTab, setActiveTab] = useState<StatusTab>('todos');
   const [salesModalOpen, setSalesModalOpen] = useState(false);
+  const [selectedSalesDate, setSelectedSalesDate] = useState(DEFAULT_SALES_DATE);
 
   const filteredClients = useMemo(() => {
     return clients.filter(c => {
@@ -74,27 +79,28 @@ export default function Index() {
     const emAberto = filteredClients.filter(c => c.status === 'em_andamento').length;
     const naoRenovados = filteredClients.filter(c => c.status === 'nao_renovado').length;
     const taxa = total > 0 ? (renovados / total) * 100 : 0;
-    const receita = renovados * RECEITA_POR_RENOVACAO;
+    const receita = filteredClients.reduce((acc, client) => acc + (client.saleInfo?.amountPaid ?? 0), 0);
     return { total, renovados, emAberto, naoRenovados, taxaRenovacao: taxa, receita };
   }, [filteredClients]);
 
   const salesByDay = useMemo(() => {
-    const grouped = filteredClients
-      .filter((client) => client.status === 'renovado' && client.dataRenovacao)
-      .reduce<Record<string, { count: number; revenue: number }>>((acc, client) => {
-        const date = client.dataRenovacao as string;
-        if (!acc[date]) {
-          acc[date] = { count: 0, revenue: 0 };
-        }
-        acc[date].count += 1;
-        acc[date].revenue += RECEITA_POR_RENOVACAO;
-        return acc;
-      }, {});
+    return clients
+      .filter((client) => client.saleInfo && getDatePart(client.saleInfo.paidAt) === selectedSalesDate)
+      .map((client) => ({
+        id: client.id,
+        clientName: client.razaoSocial,
+        cnpj: client.cnpj,
+        certificateLabel: client.saleInfo!.certificateLabel,
+        paidAt: client.saleInfo!.paidAt,
+        amountPaid: client.saleInfo!.amountPaid,
+      }))
+      .sort((a, b) => a.paidAt.localeCompare(b.paidAt));
+  }, [clients, selectedSalesDate]);
 
-    return Object.entries(grouped)
-      .map(([date, value]) => ({ date, ...value }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }, [filteredClients]);
+  const salesTotal = useMemo(
+    () => salesByDay.reduce((acc, item) => acc + item.amountPaid, 0),
+    [salesByDay]
+  );
 
   const handlePullClient = (clientId: string) => {
     setClients(prev => prev.map(c =>
@@ -266,7 +272,10 @@ export default function Index() {
       <SalesByDayModal
         open={salesModalOpen}
         onOpenChange={setSalesModalOpen}
+        selectedDate={selectedSalesDate}
+        onDateChange={setSelectedSalesDate}
         items={salesByDay}
+        totalRevenue={salesTotal}
       />
     </div>
   );
