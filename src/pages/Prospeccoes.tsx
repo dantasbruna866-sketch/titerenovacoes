@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, Download, BarChart3, TimerReset } from 'lucide-react';
+import { Search, Download, BarChart3 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import logoIdentite from '@/assets/logo-identite.png';
 import { mockProspects, type Prospect, type ProspectStatus } from '@/data/mockProspects';
@@ -11,8 +11,8 @@ import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
 import { Filters } from '@/components/Filters';
 import { SalesByDayModal } from '@/components/SalesByDayModal';
-import { ReturnsByDayModal } from '@/components/ReturnsByDayModal';
 import { StatusTabs, getProspectTab, type ProspectTab } from '@/components/StatusTabs';
+import { DashboardCards } from '@/components/DashboardCards';
 import { ModuleNav } from '@/components/ModuleNav';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -63,19 +63,18 @@ export default function Prospeccoes() {
   const [activeTab, setActiveTab] = useState<ProspectTab>('todos');
   const [salesModalOpen, setSalesModalOpen] = useState(false);
   const [selectedSalesDate, setSelectedSalesDate] = useState(DEFAULT_SALES_DATE);
-  const [returnsModalOpen, setReturnsModalOpen] = useState(false);
   const [selectedReturnDate, setSelectedReturnDate] = useState(DEFAULT_SALES_DATE);
 
   const filteredProspects = useMemo(() => {
     return prospects.filter(p => {
       if (p.blacklist) return false;
-      const venc = new Date(p.dataVencimento);
+      const abertura = new Date(p.dataAbertura);
       if (dateRange?.from) {
         const from = new Date(dateRange.from);
         from.setHours(0, 0, 0, 0);
         const to = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
         to.setHours(23, 59, 59, 999);
-        if (venc < from || venc > to) return false;
+        if (abertura < from || abertura > to) return false;
       }
       if (vendedor !== 'all' && p.vendedor !== vendedor) return false;
       if (engajamento !== 'all' && p.engajamento !== engajamento) return false;
@@ -94,8 +93,11 @@ export default function Prospeccoes() {
 
   const tabFilteredProspects = useMemo(() => {
     if (activeTab === 'todos') return filteredProspects;
+    if (activeTab === 'retornos_dia') {
+      return filteredProspects.filter((prospect) => prospect.dataRetorno && getDatePart(prospect.dataRetorno) === selectedReturnDate);
+    }
     return filteredProspects.filter(p => getProspectTab(p) === activeTab);
-  }, [filteredProspects, activeTab]);
+  }, [filteredProspects, activeTab, selectedReturnDate]);
 
   const tableClients = useMemo(
     () => tabFilteredProspects.map(prospectToClient),
@@ -190,11 +192,12 @@ export default function Prospeccoes() {
   // KPIs simples para prospecções
   const kpis = useMemo(() => {
     const total = filteredProspects.length;
-    const naoContatados = filteredProspects.filter(p => p.prospectStatus === 'nao_contatado').length;
-    const emFunil = filteredProspects.filter(p => ['em_abordagem', 'interessado', 'qualificado'].includes(p.prospectStatus)).length;
-    const convertidos = filteredProspects.filter(p => p.prospectStatus === 'convertido').length;
-    const taxa = total > 0 ? (convertidos / total) * 100 : 0;
-    return { total, naoContatados, emFunil, convertidos, taxa };
+    const renovados = filteredProspects.filter(p => p.prospectStatus === 'convertido').length;
+    const emAberto = filteredProspects.filter(p => ['nao_contatado', 'em_abordagem', 'interessado', 'qualificado'].includes(p.prospectStatus)).length;
+    const naoRenovados = filteredProspects.filter(p => p.prospectStatus === 'descartado').length;
+    const taxa = total > 0 ? (renovados / total) * 100 : 0;
+    const receita = filteredProspects.reduce((acc, prospect) => acc + (prospect.saleInfo?.amountPaid ?? 0), 0);
+    return { total, renovados, emAberto, naoRenovados, taxaRenovacao: taxa, receita };
   }, [filteredProspects]);
 
   const salesByDay = useMemo(() => {
@@ -215,21 +218,6 @@ export default function Prospeccoes() {
     () => salesByDay.reduce((acc, item) => acc + item.amountPaid, 0),
     [salesByDay]
   );
-
-  const returnsByDay = useMemo(() => {
-    return prospects
-      .filter((prospect) => prospect.dataRetorno && getDatePart(prospect.dataRetorno) === selectedReturnDate)
-      .map((prospect) => ({
-        id: prospect.id,
-        clientName: prospect.razaoSocial,
-        cnpj: prospect.cnpj,
-        phone: prospect.telefone,
-        email: prospect.email,
-        returnAt: prospect.dataRetorno!,
-        returnAction: prospect.retornoAcao,
-      }))
-      .sort((a, b) => a.returnAt.localeCompare(b.returnAt));
-  }, [prospects, selectedReturnDate]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -263,10 +251,6 @@ export default function Prospeccoes() {
                 <BarChart3 className="h-4 w-4" />
                 Ver vendas por dia
               </Button>
-              <Button variant="outline" className="gap-2" onClick={() => setReturnsModalOpen(true)}>
-                <TimerReset className="h-4 w-4" />
-                Ver retornos do dia
-              </Button>
               <Button onClick={handleImportEmpresAqui} className="gap-2">
                 <Download className="h-4 w-4" />
                 Importar base do EmpresAqui
@@ -276,6 +260,7 @@ export default function Prospeccoes() {
 
           <Filters
             dateRange={dateRange}
+            dateLabel="Selecione o período de abertura"
             vendedor={vendedor}
             engajamento={engajamento}
             tag={tag}
@@ -288,25 +273,28 @@ export default function Prospeccoes() {
           />
         </div>
 
-        {/* KPIs simples */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <KpiCard label="Total" value={kpis.total} accent="text-foreground" />
-          <KpiCard label="Não contatados" value={kpis.naoContatados} accent="text-slate-600" />
-          <KpiCard label="Em funil" value={kpis.emFunil} accent="text-sky-600" />
-          <KpiCard label="Convertidos" value={kpis.convertidos} accent="text-emerald-600" />
-          <KpiCard label="Taxa de conversão" value={`${kpis.taxa.toFixed(1)}%`} accent="text-primary" />
-        </div>
+        <DashboardCards {...kpis} />
 
         <div>
           <StatusTabs
             variant="prospects"
             prospects={filteredProspects}
             activeTab={activeTab}
+            returnDate={selectedReturnDate}
             onTabChange={(t) => setActiveTab(t as ProspectTab)}
           />
+          {activeTab === 'retornos_dia' && (
+            <div className="mt-3 flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
+              <span className="text-sm font-medium">Data dos retornos</span>
+              <Input type="date" value={selectedReturnDate} onChange={(e) => setSelectedReturnDate(e.target.value)} className="w-[180px] h-9" />
+              <span className="text-sm text-muted-foreground">Visualizando todos os clientes agendados nesse dia.</span>
+            </div>
+          )}
           <div className="mt-3">
             <ClientTable
               clients={tableClients}
+              dateColumnLabel="Data de abertura da empresa"
+              dateColumnVariant="opening"
               onSelectClient={setSelectedClient}
               onPullClient={handlePullClient}
               onRegisterInteraction={setInteractionClient}
@@ -366,23 +354,6 @@ export default function Prospeccoes() {
         items={salesByDay}
         totalRevenue={salesTotal}
       />
-
-      <ReturnsByDayModal
-        open={returnsModalOpen}
-        onOpenChange={setReturnsModalOpen}
-        selectedDate={selectedReturnDate}
-        onDateChange={setSelectedReturnDate}
-        items={returnsByDay}
-      />
-    </div>
-  );
-}
-
-function KpiCard({ label, value, accent }: { label: string; value: string | number; accent?: string }) {
-  return (
-    <div className="crm-kpi-card">
-      <p className={`text-2xl font-bold ${accent || 'text-foreground'}`}>{value}</p>
-      <p className="text-xs text-muted-foreground mt-1">{label}</p>
     </div>
   );
 }

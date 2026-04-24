@@ -12,6 +12,7 @@ import { vendedores, allTags } from '@/data/mockData';
 
 interface FiltersProps {
   dateRange: DateRange | undefined;
+  dateLabel?: string;
   vendedor: string;
   engajamento: string;
   tag: string;
@@ -24,7 +25,7 @@ interface FiltersProps {
 }
 
 export function Filters({
-  dateRange, vendedor, engajamento, tag, tentativasMin,
+  dateRange, dateLabel = 'Selecione o período de vencimento', vendedor, engajamento, tag, tentativasMin,
   onDateRangeChange, onVendedorChange, onEngajamentoChange, onTagChange, onTentativasMinChange,
 }: FiltersProps) {
   const [open, setOpen] = useState(false);
@@ -33,7 +34,7 @@ export function Filters({
     ? dateRange.to
       ? `${format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} – ${format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}`
       : format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
-    : 'Selecione o período de vencimento';
+    : dateLabel;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
