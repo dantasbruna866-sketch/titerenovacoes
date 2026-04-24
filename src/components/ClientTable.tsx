@@ -19,6 +19,7 @@ interface ClientTableProps {
   onRegisterInteraction: (client: Client) => void;
   onViewAllInteractions: (client: Client) => void;
   onContact: (client: Client, channel: InteractionType) => void;
+  onUpdateReturn: (clientId: string, dataRetorno?: string, retornoAcao?: string) => void;
   onUpdateClientMeta: (clientId: string, data: {
     vendedor: string | null;
     status: ClientStatus;
@@ -74,8 +75,9 @@ const engagementOptions: { value: EngagementLevel; label: string }[] = [
   { value: 'problema', label: 'Problema' },
 ];
 
-export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateColumnVariant = 'renewals', onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact, onUpdateClientMeta }: ClientTableProps) {
+export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateColumnVariant = 'renewals', onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact, onUpdateReturn, onUpdateClientMeta }: ClientTableProps) {
   const [openEditor, setOpenEditor] = useState<string | null>(null);
+  const [returnDrafts, setReturnDrafts] = useState<Record<string, { dataRetorno: string; retornoAcao: string }>>({});
 
   const updateClientField = (client: Client, patch: Partial<Pick<Client, 'status' | 'engajamento' | 'tags'>>) => {
     onUpdateClientMeta(client.id, {
@@ -84,6 +86,25 @@ export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateCol
       engajamento: patch.engajamento ?? client.engajamento,
       tags: patch.tags ?? client.tags,
     });
+  };
+
+  const getReturnDraft = (client: Client) => {
+    const draft = returnDrafts[client.id];
+    if (draft) return draft;
+    return {
+      dataRetorno: client.dataRetorno ? client.dataRetorno.replace(' ', 'T') : '',
+      retornoAcao: client.retornoAcao ?? '',
+    };
+  };
+
+  const updateReturnDraft = (clientId: string, patch: Partial<{ dataRetorno: string; retornoAcao: string }>) => {
+    setReturnDrafts((prev) => ({
+      ...prev,
+      [clientId]: {
+        ...(prev[clientId] ?? { dataRetorno: '', retornoAcao: '' }),
+        ...patch,
+      },
+    }));
   };
 
   return (
@@ -372,15 +393,75 @@ export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateCol
                     </Popover>
                   </td>
 
-                  <td className="px-4 py-3">
-                    {client.dataRetorno ? (
-                      <div className="inline-flex items-center gap-1.5 rounded-md bg-muted/70 px-2 py-1 text-xs text-foreground/80 whitespace-nowrap">
-                        <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
-                        {formatDateTime(client.dataRetorno)}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-xs italic">Sem retorno</span>
-                    )}
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <Popover
+                      open={openEditor === `${client.id}-return`}
+                      onOpenChange={(open) => {
+                        if (open) {
+                          setReturnDrafts((prev) => ({
+                            ...prev,
+                            [client.id]: {
+                              dataRetorno: client.dataRetorno ? client.dataRetorno.replace(' ', 'T') : '',
+                              retornoAcao: client.retornoAcao ?? '',
+                            },
+                          }));
+                        }
+                        setOpenEditor(open ? `${client.id}-return` : null);
+                      }}
+                    >
+                      <PopoverTrigger asChild>
+                        <button type="button" className="rounded-md text-left">
+                          {client.dataRetorno ? (
+                            <div className="inline-flex items-center gap-1.5 rounded-md bg-muted/70 px-2 py-1 text-xs text-foreground/80 whitespace-nowrap">
+                              <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
+                              {formatDateTime(client.dataRetorno)}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs italic">Sem retorno</span>
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 p-3" align="start">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-xs text-muted-foreground">Data e hora</label>
+                            <input
+                              type="datetime-local"
+                              className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                              value={getReturnDraft(client).dataRetorno}
+                              onChange={(e) => updateReturnDraft(client.id, { dataRetorno: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground">Próxima ação</label>
+                            <input
+                              type="text"
+                              className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                              placeholder="Ex.: enviar WhatsApp"
+                              value={getReturnDraft(client).retornoAcao}
+                              onChange={(e) => updateReturnDraft(client.id, { retornoAcao: e.target.value })}
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const draft = getReturnDraft(client);
+                                onUpdateReturn(
+                                  client.id,
+                                  draft.dataRetorno ? draft.dataRetorno.replace('T', ' ') : undefined,
+                                  draft.retornoAcao.trim() || undefined,
+                                );
+                                setOpenEditor(null);
+                              }}
+                            >
+                              Salvar retorno
+                            </Button>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
 
                   <td className="px-4 py-3">
