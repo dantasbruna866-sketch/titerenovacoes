@@ -131,22 +131,25 @@ export function StatusTabs({ variant = 'renewals', clients = [], prospects = [],
               key={tab}
               onClick={() => onTabChange(tab)}
               className={`
-                flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap
+                flex min-w-[152px] flex-col items-start gap-2 px-4 py-3 text-sm font-medium
                 border-b-2 transition-colors
                 ${isActive
                   ? `${m.activeColor} bg-background`
                   : `border-transparent ${m.color} hover:text-foreground hover:bg-muted/50`}
               `}
             >
-              <Icon className="h-4 w-4" />
-              <span>{m.label}</span>
-              <span className={`
-                ml-0.5 px-1.5 py-0.5 rounded-full text-xs font-semibold leading-none
-                ${isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}
-              `}>
-                {count}
-              </span>
-              <div className="ml-1 flex items-center gap-2">
+              <div className="flex w-full items-center gap-2 whitespace-nowrap">
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{m.label}</span>
+                <span className={`
+                  ml-auto px-1.5 py-0.5 rounded-full text-xs font-semibold leading-none
+                  ${isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}
+                `}>
+                  {count}
+                </span>
+              </div>
+
+              <div className="flex w-full items-center gap-3 pl-6">
                 <span className="relative inline-flex items-center justify-center">
                   <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
                   {messages.whatsapp > 0 && (
