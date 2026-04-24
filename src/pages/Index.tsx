@@ -32,6 +32,7 @@ export default function Index() {
   const [engajamento, setEngajamento] = useState('all');
   const [tag, setTag] = useState('all');
   const [tentativasMin, setTentativasMin] = useState('all');
+  const [activeTab, setActiveTab] = useState<StatusTab>('todos');
 
   const filteredClients = useMemo(() => {
     return clients.filter(c => {
