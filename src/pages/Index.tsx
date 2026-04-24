@@ -11,6 +11,7 @@ import { RegisterInteractionModal } from '@/components/RegisterInteractionModal'
 import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
 import { StatusTabs, getClientTab, type StatusTab } from '@/components/StatusTabs';
+import { ModuleNav } from '@/components/ModuleNav';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
@@ -144,9 +145,10 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b sticky top-0 z-40 shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-[1600px] mx-auto px-6 h-14 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
             <img src={logoIdentite} alt="Identité Certificado Digital" className="h-9" />
+            <ModuleNav />
           </div>
           <div className="relative w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -178,9 +180,10 @@ export default function Index() {
 
         <div>
           <StatusTabs
+            variant="renewals"
             clients={filteredClients}
             activeTab={activeTab}
-            onTabChange={setActiveTab}
+            onTabChange={(t) => setActiveTab(t as StatusTab)}
           />
           <div className="mt-3">
             <ClientTable
