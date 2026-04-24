@@ -22,6 +22,15 @@ export interface ProcessStatus {
   certificate: ProcessStepState;
 }
 
+export interface SaleInfo {
+  /** Data em que o pagamento foi confirmado */
+  paidAt: string;
+  /** Produto/certificado vendido */
+  certificateLabel: string;
+  /** Valor efetivamente pago */
+  amountPaid: number;
+}
+
 export interface Observation {
   id: string;
   date: string;
@@ -70,6 +79,8 @@ export interface Client {
   engajamento: EngagementLevel;
   /** Quantidade de mensagens recebidas do cliente no WhatsApp ainda não lidas pelo vendedor */
   whatsappUnread?: number;
+  /** Dados comerciais da venda confirmada */
+  saleInfo?: SaleInfo | null;
   /** Estado das etapas do processo de renovação (pagamento, agendamento, videoconf, certificado) */
   processStatus: ProcessStatus;
 }
@@ -128,6 +139,7 @@ export const mockClients: Client[] = [
       { id: 'i3', date: '2025-04-10 10:15', type: 'email', message: 'Confirmação de renovação enviada.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 09:12', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
@@ -194,6 +206,7 @@ export const mockClients: Client[] = [
       { id: 'i13', date: '2025-04-08 11:00', type: 'whatsapp', whatsappStatus: 'respondido', message: 'Certificado renovado com sucesso!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 10:05', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'done', certificate: 'done' },
   },
   {
