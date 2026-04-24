@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Eye, UserPlus, FileText, Phone, MessageCircle, MessageSquare, Mail, Plus, Clock, CheckCircle2, CalendarClock } from 'lucide-react';
-import type { Client, Interaction, InteractionType } from '@/data/mockData';
+import type { Client, Interaction, InteractionType, ClientStatus, EngagementLevel } from '@/data/mockData';
 import { StatusBadge } from './StatusBadge';
 import { TagChip } from './TagChip';
 import { EngagementBadge } from './EngagementBadge';
 import { WhatsAppStatusIcon } from './WhatsAppStatusIcon';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { allTags } from '@/data/mockData';
 
 interface ClientTableProps {
   clients: Client[];
@@ -16,6 +19,12 @@ interface ClientTableProps {
   onRegisterInteraction: (client: Client) => void;
   onViewAllInteractions: (client: Client) => void;
   onContact: (client: Client, channel: InteractionType) => void;
+  onUpdateClientMeta: (clientId: string, data: {
+    vendedor: string | null;
+    status: ClientStatus;
+    engajamento: EngagementLevel;
+    tags: string[];
+  }) => void;
 }
 
 const channelOrder: InteractionType[] = ['ligacao', 'whatsapp', 'email', 'sms'];
@@ -52,7 +61,31 @@ function getLastByChannel(interactions: Interaction[]): Partial<Record<Interacti
   return map;
 }
 
-export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateColumnVariant = 'renewals', onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact }: ClientTableProps) {
+const statusOptions: { value: ClientStatus; label: string }[] = [
+  { value: 'em_andamento', label: 'Em andamento' },
+  { value: 'renovado', label: 'Renovado' },
+  { value: 'nao_renovado', label: 'Não renovado' },
+];
+
+const engagementOptions: { value: EngagementLevel; label: string }[] = [
+  { value: 'engajado', label: 'Engajado' },
+  { value: 'visualizou', label: 'Visualizou' },
+  { value: 'frio', label: 'Frio' },
+  { value: 'problema', label: 'Problema' },
+];
+
+export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateColumnVariant = 'renewals', onSelectClient, onPullClient, onRegisterInteraction, onViewAllInteractions, onContact, onUpdateClientMeta }: ClientTableProps) {
+  const [openEditor, setOpenEditor] = useState<string | null>(null);
+
+  const updateClientField = (client: Client, patch: Partial<Pick<Client, 'status' | 'engajamento' | 'tags'>>) => {
+    onUpdateClientMeta(client.id, {
+      vendedor: client.vendedor,
+      status: patch.status ?? client.status,
+      engajamento: patch.engajamento ?? client.engajamento,
+      tags: patch.tags ?? client.tags,
+    });
+  };
+
   return (
     <div className="crm-card overflow-hidden">
       <div className="overflow-x-auto">
@@ -192,8 +225,60 @@ export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateCol
                     )}
                   </td>
 
-                  <td className="px-4 py-3"><StatusBadge status={client.status} /></td>
-                  <td className="px-4 py-3"><EngagementBadge level={client.engajamento} /></td>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <Popover open={openEditor === `${client.id}-status`} onOpenChange={(open) => setOpenEditor(open ? `${client.id}-status` : null)}>
+                      <PopoverTrigger asChild>
+                        <button className="rounded-md" type="button">
+                          <StatusBadge status={client.status} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-44 p-2" align="start">
+                        <div className="space-y-1">
+                          {statusOptions.map((option) => (
+                            <Button
+                              key={option.value}
+                              type="button"
+                              variant={client.status === option.value ? 'default' : 'ghost'}
+                              className="w-full justify-start h-8"
+                              onClick={() => {
+                                updateClientField(client, { status: option.value });
+                                setOpenEditor(null);
+                              }}
+                            >
+                              {option.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </td>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <Popover open={openEditor === `${client.id}-engagement`} onOpenChange={(open) => setOpenEditor(open ? `${client.id}-engagement` : null)}>
+                      <PopoverTrigger asChild>
+                        <button className="rounded-md" type="button">
+                          <EngagementBadge level={client.engajamento} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-40 p-2" align="start">
+                        <div className="space-y-1">
+                          {engagementOptions.map((option) => (
+                            <Button
+                              key={option.value}
+                              type="button"
+                              variant={client.engajamento === option.value ? 'default' : 'ghost'}
+                              className="w-full justify-start h-8"
+                              onClick={() => {
+                                updateClientField(client, { engajamento: option.value });
+                                setOpenEditor(null);
+                              }}
+                            >
+                              {option.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </td>
 
                   {/* Tentativas: contagem por canal alinhada com a última interação */}
                   <td className="px-4 py-3 align-top">
@@ -244,13 +329,47 @@ export function ClientTable({ clients, dateColumnLabel = 'Renovações', dateCol
                     )}
                   </td>
 
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-1 max-w-[150px]">
-                      {client.tags.filter(t => t !== 'blacklist').slice(0, 2).map(tag => <TagChip key={tag} tag={tag} />)}
-                      {client.tags.filter(t => t !== 'blacklist').length > 2 && (
-                        <span className="tag-chip bg-muted text-muted-foreground">+{client.tags.filter(t => t !== 'blacklist').length - 2}</span>
-                      )}
-                    </div>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <Popover open={openEditor === `${client.id}-tags`} onOpenChange={(open) => setOpenEditor(open ? `${client.id}-tags` : null)}>
+                      <PopoverTrigger asChild>
+                        <button type="button" className="w-full text-left rounded-md">
+                          <div className="flex flex-wrap gap-1 max-w-[150px]">
+                            {client.tags.filter(t => t !== 'blacklist').slice(0, 2).map(tag => <TagChip key={tag} tag={tag} />)}
+                            {client.tags.filter(t => t !== 'blacklist').length > 2 && (
+                              <span className="tag-chip bg-muted text-muted-foreground">+{client.tags.filter(t => t !== 'blacklist').length - 2}</span>
+                            )}
+                            {client.tags.filter(t => t !== 'blacklist').length === 0 && (
+                              <span className="text-xs text-muted-foreground italic">Sem tags</span>
+                            )}
+                          </div>
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-3" align="start">
+                        <div className="flex flex-wrap gap-2">
+                          {allTags.map((tag) => {
+                            const isActive = client.tags.includes(tag);
+                            return (
+                              <Button
+                                key={tag}
+                                type="button"
+                                size="sm"
+                                variant={isActive ? 'default' : 'outline'}
+                                className="h-8"
+                                onClick={() => {
+                                  updateClientField(client, {
+                                    tags: isActive
+                                      ? client.tags.filter((item) => item !== tag)
+                                      : [...client.tags, tag],
+                                  });
+                                }}
+                              >
+                                {tag}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </td>
 
                   <td className="px-4 py-3">
