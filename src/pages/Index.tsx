@@ -134,6 +134,20 @@ export default function Index() {
     toast({ title: 'Observação adicionada!' });
   }, [toast]);
 
+  const handleUpdateReturn = useCallback((clientId: string, dataRetorno?: string, retornoAcao?: string) => {
+    setClients(prev => prev.map(c => {
+      if (c.id !== clientId) return c;
+      const updated = {
+        ...c,
+        dataRetorno: dataRetorno || null,
+        retornoAcao: retornoAcao || null,
+      };
+      setSelectedClient(prevSelected => prevSelected?.id === clientId ? updated : prevSelected);
+      return updated;
+    }));
+    toast({ title: 'Retorno atualizado!' });
+  }, [toast]);
+
   const handleRegisterInteraction = useCallback((data: {
     type: InteractionType;
     callStatus?: CallStatus;
@@ -142,6 +156,8 @@ export default function Index() {
     notes?: string;
     durationMinutes?: number;
     spokeWithClient?: boolean;
+    dataRetorno?: string;
+    retornoAcao?: string;
   }) => {
     if (!interactionClient) return;
     const clientId = interactionClient.id;
@@ -157,6 +173,8 @@ export default function Index() {
         ...c,
         interactions: [...c.interactions, newInteraction],
         tentativasContato: c.tentativasContato + 1,
+        dataRetorno: data.dataRetorno || c.dataRetorno || null,
+        retornoAcao: data.retornoAcao || c.retornoAcao || null,
       };
       updated.engajamento = getEngagementLevel(updated);
       setSelectedClient(prev => prev?.id === clientId ? updated : prev);
@@ -239,6 +257,7 @@ export default function Index() {
           onMarkRenewed={handleMarkRenewed}
           onAddObservation={handleAddObservation}
           onRegisterInteraction={setInteractionClient}
+          onUpdateReturn={handleUpdateReturn}
         />
       )}
 
@@ -246,6 +265,8 @@ export default function Index() {
       {interactionClient && (
         <RegisterInteractionModal
           clientName={interactionClient.razaoSocial}
+          initialReturnAt={interactionClient.dataRetorno}
+          initialReturnAction={interactionClient.retornoAcao}
           onClose={() => setInteractionClient(null)}
           onSubmit={handleRegisterInteraction}
         />

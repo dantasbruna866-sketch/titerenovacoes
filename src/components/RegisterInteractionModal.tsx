@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 
 interface RegisterInteractionModalProps {
   clientName: string;
+  initialReturnAt?: string | null;
+  initialReturnAction?: string | null;
   onClose: () => void;
   onSubmit: (data: {
     type: InteractionType;
@@ -18,16 +20,26 @@ interface RegisterInteractionModalProps {
     notes?: string;
     durationMinutes?: number;
     spokeWithClient?: boolean;
+    dataRetorno?: string;
+    retornoAcao?: string;
   }) => void;
 }
 
-export function RegisterInteractionModal({ clientName, onClose, onSubmit }: RegisterInteractionModalProps) {
+function toDateTimeLocalValue(value?: string | null) {
+  if (!value) return '';
+  const [date, time] = value.split(' ');
+  return date && time ? `${date}T${time}` : '';
+}
+
+export function RegisterInteractionModal({ clientName, initialReturnAt, initialReturnAction, onClose, onSubmit }: RegisterInteractionModalProps) {
   const [type, setType] = useState<InteractionType>('ligacao');
   const [callStatus, setCallStatus] = useState<CallStatus>('atendeu');
   const [whatsappStatus, setWhatsappStatus] = useState<WhatsAppStatus>('enviado');
   const [message, setMessage] = useState('');
   const [notes, setNotes] = useState('');
   const [durationMinutes, setDurationMinutes] = useState<string>('');
+  const [returnAt, setReturnAt] = useState(toDateTimeLocalValue(initialReturnAt));
+  const [returnAction, setReturnAction] = useState(initialReturnAction ?? '');
 
   // Falou com o cliente: automático com base no status da ligação
   const spokeWithClient = type === 'ligacao' && callStatus === 'atendeu';
@@ -41,6 +53,8 @@ export function RegisterInteractionModal({ clientName, onClose, onSubmit }: Regi
       notes: notes || undefined,
       durationMinutes: type === 'ligacao' ? (parseInt(durationMinutes) || 0) : undefined,
       spokeWithClient: type === 'ligacao' ? spokeWithClient : undefined,
+      dataRetorno: returnAt ? returnAt.replace('T', ' ') : undefined,
+      retornoAcao: returnAction.trim() || undefined,
     });
   };
 
@@ -133,6 +147,27 @@ export function RegisterInteractionModal({ clientName, onClose, onSubmit }: Regi
           <div>
             <Label className="text-sm font-medium">Observação</Label>
             <Textarea className="mt-1" rows={2} placeholder="Notas sobre a interação..." value={notes} onChange={e => setNotes(e.target.value)} />
+          </div>
+
+          <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+            <div>
+              <Label className="text-sm font-medium">Data de retorno</Label>
+              <Input
+                type="datetime-local"
+                className="mt-1"
+                value={returnAt}
+                onChange={e => setReturnAt(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Próxima ação</Label>
+              <Input
+                className="mt-1"
+                placeholder="Ex.: enviar WhatsApp"
+                value={returnAction}
+                onChange={e => setReturnAction(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
