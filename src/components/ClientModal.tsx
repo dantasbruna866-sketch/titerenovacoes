@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 interface ClientModalProps {
   client: Client;
@@ -17,6 +18,13 @@ interface ClientModalProps {
   onMarkRenewed: (id: string) => void;
   onAddObservation: (clientId: string, text: string) => void;
   onRegisterInteraction: (client: Client) => void;
+  onUpdateReturn: (clientId: string, dataRetorno?: string, retornoAcao?: string) => void;
+}
+
+function toDateTimeLocalValue(value?: string | null) {
+  if (!value) return '';
+  const [date, time] = value.split(' ');
+  return date && time ? `${date}T${time}` : '';
 }
 
 const interactionTypeIcons: Record<string, React.ReactNode> = {
@@ -74,14 +82,20 @@ function InteractionItem({ interaction }: { interaction: Interaction }) {
   );
 }
 
-export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, onRegisterInteraction }: ClientModalProps) {
+export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, onRegisterInteraction, onUpdateReturn }: ClientModalProps) {
   const [newObs, setNewObs] = useState('');
   const [showAllObs, setShowAllObs] = useState(false);
+  const [returnAt, setReturnAt] = useState(toDateTimeLocalValue(client.dataRetorno));
+  const [returnAction, setReturnAction] = useState(client.retornoAcao ?? '');
 
   const handleAddObs = () => {
     if (!newObs.trim()) return;
     onAddObservation(client.id, newObs.trim());
     setNewObs('');
+  };
+
+  const handleSaveReturn = () => {
+    onUpdateReturn(client.id, returnAt ? returnAt.replace('T', ' ') : undefined, returnAction.trim() || undefined);
   };
 
   const visibleObs = showAllObs ? client.observacoes : client.observacoes.slice(0, 2);
@@ -112,6 +126,7 @@ export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, 
                 <div><span className="text-muted-foreground">Telefone:</span> <span className="font-medium">{client.telefone}</span></div>
                 <div><span className="text-muted-foreground">Email:</span> <span className="font-medium">{client.email}</span></div>
                 <div><span className="text-muted-foreground">Retorno:</span> <span className="font-medium">{client.dataRetorno ? new Date(client.dataRetorno.replace(' ', 'T')).toLocaleString('pt-BR') : 'Não agendado'}</span></div>
+                <div><span className="text-muted-foreground">Ação:</span> <span className="font-medium">{client.retornoAcao || 'Não definida'}</span></div>
                 <div><span className="text-muted-foreground">Vencimento:</span> <span className="font-medium">{new Date(client.dataVencimento).toLocaleDateString('pt-BR')}</span></div>
                 <div><span className="text-muted-foreground">Renovação:</span> <span className="font-medium">{client.dataRenovacao ? new Date(client.dataRenovacao).toLocaleDateString('pt-BR') : 'Em aberto'}</span></div>
                 <div><span className="text-muted-foreground">Tentativas:</span> <span className="font-medium">{client.tentativasContato}</span></div>
@@ -123,6 +138,23 @@ export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, 
                 {client.tags.filter(t => t !== 'blacklist').map(tag => <TagChip key={tag} tag={tag} />)}
               </div>
               {client.vendedor && <p className="text-sm mt-2"><span className="text-muted-foreground">Vendedor:</span> <span className="font-medium">{client.vendedor}</span></p>}
+            </section>
+
+            <section>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Próximo retorno</h3>
+              <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1.5">Data e hora</p>
+                  <Input type="datetime-local" value={returnAt} onChange={(e) => setReturnAt(e.target.value)} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1.5">Ação prevista</p>
+                  <Input placeholder="Ex.: dia 10/05/2026 enviar WhatsApp" value={returnAction} onChange={(e) => setReturnAction(e.target.value)} />
+                </div>
+                <div className="flex justify-end">
+                  <Button size="sm" variant="outline" onClick={handleSaveReturn}>Salvar retorno</Button>
+                </div>
+              </div>
             </section>
 
             <section>
