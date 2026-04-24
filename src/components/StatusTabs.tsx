@@ -41,28 +41,35 @@ const RENEWAL_ORDER: StatusTab[] = ['todos', 'em_atendimento', 'nao_contatado', 
 
 export type ProspectTab =
   | 'todos'
+  | 'em_atendimento'
   | 'nao_contatado'
-  | 'em_abordagem'
   | 'interessado'
-  | 'qualificado'
-  | 'convertido'
-  | 'descartado';
+  | 'em_negociacao'
+  | 'renovado'
+  | 'nao_renovado'
+  | 'retornos_dia';
 
 export function getProspectTab(p: Prospect): Exclude<ProspectTab, 'todos'> {
-  return p.prospectStatus;
+  if (p.prospectStatus === 'convertido') return 'renovado';
+  if (p.prospectStatus === 'descartado') return 'nao_renovado';
+  if (p.prospectStatus === 'nao_contatado') return 'nao_contatado';
+  if (p.tags.includes('Negociando') || p.prospectStatus === 'qualificado') return 'em_negociacao';
+  if (p.tags.includes('Interessado') || p.prospectStatus === 'interessado') return 'interessado';
+  return 'em_atendimento';
 }
 
 const PROSPECT_META: Record<ProspectTab, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; activeColor: string }> = {
   todos:         { label: 'Todos',          icon: Users,        color: 'text-muted-foreground', activeColor: 'border-primary text-primary' },
+  em_atendimento:{ label: 'Em atendimento', icon: Clock,        color: 'text-sky-600',          activeColor: 'border-sky-600 text-sky-700' },
   nao_contatado: { label: 'Não contatado',  icon: UserX,        color: 'text-slate-500',        activeColor: 'border-slate-600 text-slate-700' },
-  em_abordagem:  { label: 'Em abordagem',   icon: Phone,        color: 'text-sky-600',          activeColor: 'border-sky-600 text-sky-700' },
   interessado:   { label: 'Interessado',    icon: Star,         color: 'text-orange-500',       activeColor: 'border-orange-500 text-orange-600' },
-  qualificado:   { label: 'Qualificado',    icon: Sparkles,     color: 'text-indigo-500',       activeColor: 'border-indigo-600 text-indigo-700' },
-  convertido:    { label: 'Convertido',     icon: Target,       color: 'text-emerald-600',      activeColor: 'border-emerald-600 text-emerald-700' },
-  descartado:    { label: 'Descartado',     icon: Trash2,       color: 'text-rose-500',         activeColor: 'border-rose-600 text-rose-700' },
+  em_negociacao: { label: 'Em negociação',  icon: Phone,        color: 'text-indigo-500',       activeColor: 'border-indigo-600 text-indigo-700' },
+  renovado:      { label: 'Renovado',       icon: CheckCircle2, color: 'text-emerald-600',      activeColor: 'border-emerald-600 text-emerald-700' },
+  nao_renovado:  { label: 'Não renovado',   icon: XCircle,      color: 'text-rose-500',         activeColor: 'border-rose-600 text-rose-700' },
+  retornos_dia:  { label: 'Retornos do dia',icon: TimerReset,   color: 'text-violet-500',       activeColor: 'border-violet-600 text-violet-700' },
 };
 
-const PROSPECT_ORDER: ProspectTab[] = ['todos', 'nao_contatado', 'em_abordagem', 'interessado', 'qualificado', 'convertido', 'descartado'];
+const PROSPECT_ORDER: ProspectTab[] = ['todos', 'em_atendimento', 'nao_contatado', 'interessado', 'em_negociacao', 'renovado', 'nao_renovado', 'retornos_dia'];
 
 /* ======================== COMPONENTE GENÉRICO ======================== */
 
@@ -108,6 +115,11 @@ export function StatusTabs({ variant = 'renewals', clients = [], prospects = [],
       counts[t] = (counts[t] || 0) + 1;
       accumulatePendingMessages(t, p);
       accumulatePendingMessages('todos', p);
+
+      if (returnDate && p.dataRetorno?.startsWith(returnDate)) {
+        counts.retornos_dia = (counts.retornos_dia || 0) + 1;
+        accumulatePendingMessages('retornos_dia', p);
+      }
     });
     counts.todos = prospects.length;
   } else {
