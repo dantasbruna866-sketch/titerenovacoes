@@ -139,6 +139,34 @@ export default function Prospeccoes() {
     toast({ title: 'Retorno atualizado!' });
   }, [toast]);
 
+  const handleUpdateClientMeta = useCallback((clientId: string, data: {
+    vendedor: string | null;
+    status: Client['status'];
+    engajamento: Client['engajamento'];
+    tags: string[];
+  }) => {
+    setProspects(prev => prev.map(p => {
+      if (p.id !== clientId) return p;
+      const updated: Prospect = {
+        ...p,
+        vendedor: data.vendedor,
+        engajamento: data.engajamento,
+        tags: data.tags,
+        prospectStatus:
+          data.status === 'renovado'
+            ? 'convertido'
+            : data.status === 'nao_renovado'
+              ? 'descartado'
+              : p.prospectStatus === 'convertido' || p.prospectStatus === 'descartado'
+                ? 'em_abordagem'
+                : p.prospectStatus,
+      };
+      setSelectedClient(prevSelected => prevSelected?.id === clientId ? prospectToClient(updated) : prevSelected);
+      return updated;
+    }));
+    toast({ title: 'Classificação atualizada!' });
+  }, [toast]);
+
   const handleRegisterInteraction = useCallback((data: {
     type: InteractionType;
     callStatus?: CallStatus;
@@ -317,6 +345,7 @@ export default function Prospeccoes() {
           onAddObservation={handleAddObservation}
           onRegisterInteraction={setInteractionClient}
           onUpdateReturn={handleUpdateReturn}
+          onUpdateClientMeta={handleUpdateClientMeta}
         />
       )}
 

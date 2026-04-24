@@ -152,6 +152,21 @@ export default function Index() {
     toast({ title: 'Retorno atualizado!' });
   }, [toast]);
 
+  const handleUpdateClientMeta = useCallback((clientId: string, data: {
+    vendedor: string | null;
+    status: Client['status'];
+    engajamento: Client['engajamento'];
+    tags: string[];
+  }) => {
+    setClients(prev => prev.map(c => {
+      if (c.id !== clientId) return c;
+      const updated = { ...c, ...data };
+      setSelectedClient(prevSelected => prevSelected?.id === clientId ? updated : prevSelected);
+      return updated;
+    }));
+    toast({ title: 'Classificação atualizada!' });
+  }, [toast]);
+
   const handleRegisterInteraction = useCallback((data: {
     type: InteractionType;
     callStatus?: CallStatus;
@@ -270,6 +285,7 @@ export default function Index() {
           onAddObservation={handleAddObservation}
           onRegisterInteraction={setInteractionClient}
           onUpdateReturn={handleUpdateReturn}
+          onUpdateClientMeta={handleUpdateClientMeta}
         />
       )}
 
