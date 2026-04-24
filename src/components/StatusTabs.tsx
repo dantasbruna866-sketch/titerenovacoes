@@ -72,7 +72,7 @@ interface StatusTabsProps {
   onTabChange: (tab: string) => void;
 }
 
-function getClientPendingMessages(client: Client) {
+function getClientPendingMessages(client: Pick<Client, 'whatsappUnread' | 'interactions'>) {
   const whatsapp = client.whatsappUnread ?? 0;
   const email = client.interactions.filter(
     (interaction) => interaction.type === 'email' && interaction.dispatchStatus !== 'lido'
