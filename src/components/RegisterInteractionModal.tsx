@@ -31,7 +31,7 @@ function toDateTimeLocalValue(value?: string | null) {
   return date && time ? `${date}T${time}` : '';
 }
 
-export function RegisterInteractionModal({ clientName, onClose, onSubmit }: RegisterInteractionModalProps) {
+export function RegisterInteractionModal({ clientName, initialReturnAt, initialReturnAction, onClose, onSubmit }: RegisterInteractionModalProps) {
   const [type, setType] = useState<InteractionType>('ligacao');
   const [callStatus, setCallStatus] = useState<CallStatus>('atendeu');
   const [whatsappStatus, setWhatsappStatus] = useState<WhatsAppStatus>('enviado');
