@@ -178,9 +178,10 @@ export default function Index() {
 
         <div>
           <StatusTabs
+            variant="renewals"
             clients={filteredClients}
             activeTab={activeTab}
-            onTabChange={setActiveTab}
+            onTabChange={(t) => setActiveTab(t as StatusTab)}
           />
           <div className="mt-3">
             <ClientTable
