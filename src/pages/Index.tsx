@@ -10,6 +10,7 @@ import { Filters } from '@/components/Filters';
 import { RegisterInteractionModal } from '@/components/RegisterInteractionModal';
 import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
+import { StatusTabs, getClientTab, type StatusTab } from '@/components/StatusTabs';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
