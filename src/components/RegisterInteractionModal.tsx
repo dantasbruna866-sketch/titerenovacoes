@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 
 interface RegisterInteractionModalProps {
   clientName: string;
+  initialReturnAt?: string | null;
+  initialReturnAction?: string | null;
   onClose: () => void;
   onSubmit: (data: {
     type: InteractionType;
@@ -36,8 +38,8 @@ export function RegisterInteractionModal({ clientName, onClose, onSubmit }: Regi
   const [message, setMessage] = useState('');
   const [notes, setNotes] = useState('');
   const [durationMinutes, setDurationMinutes] = useState<string>('');
-  const [returnAt, setReturnAt] = useState('');
-  const [returnAction, setReturnAction] = useState('');
+  const [returnAt, setReturnAt] = useState(toDateTimeLocalValue(initialReturnAt));
+  const [returnAction, setReturnAction] = useState(initialReturnAction ?? '');
 
   // Falou com o cliente: automático com base no status da ligação
   const spokeWithClient = type === 'ligacao' && callStatus === 'atendeu';
@@ -51,7 +53,7 @@ export function RegisterInteractionModal({ clientName, onClose, onSubmit }: Regi
       notes: notes || undefined,
       durationMinutes: type === 'ligacao' ? (parseInt(durationMinutes) || 0) : undefined,
       spokeWithClient: type === 'ligacao' ? spokeWithClient : undefined,
-      dataRetorno: returnAt ? toDateTimeLocalValue(returnAt).replace('T', ' ') : undefined,
+      dataRetorno: returnAt ? returnAt.replace('T', ' ') : undefined,
       retornoAcao: returnAction.trim() || undefined,
     });
   };
