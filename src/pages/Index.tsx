@@ -271,6 +271,7 @@ export default function Index() {
               onRegisterInteraction={setInteractionClient}
               onViewAllInteractions={setAllInteractionsClient}
               onContact={(client, channel) => setContactState({ client, channel })}
+              onUpdateReturn={handleUpdateReturn}
               onUpdateClientMeta={handleUpdateClientMeta}
             />
           </div>
