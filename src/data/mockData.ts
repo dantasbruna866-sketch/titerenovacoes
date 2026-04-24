@@ -227,6 +227,7 @@ export const mockClients: Client[] = [
       { id: 'i16', date: '2025-04-12 14:00', type: 'whatsapp', whatsappStatus: 'visualizado', message: 'Lúcia, temos condições especiais para você!', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 4, engajamento: 'visualizou', whatsappUnread: 1,
+    saleInfo: null,
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -242,6 +243,7 @@ export const mockClients: Client[] = [
       { id: 'i17', date: '2025-04-13 10:00', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 7, spokeWithClient: true, notes: 'Interessado, pediu mais info' },
     ],
     blacklist: false, tentativasContato: 1, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 13:40', certificateLabel: 'e-CPF A1', amountPaid: 169.9 },
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -255,6 +257,7 @@ export const mockClients: Client[] = [
     ],
     interactions: [],
     blacklist: true, tentativasContato: 0, engajamento: 'problema',
+    saleInfo: null,
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
 ];
