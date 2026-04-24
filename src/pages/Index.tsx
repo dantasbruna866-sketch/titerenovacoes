@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search } from 'lucide-react';
+import { Search, BarChart3 } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import logoIdentite from '@/assets/logo-identite.png';
 import { mockClients, type Client, type InteractionType, type CallStatus, type WhatsAppStatus, getEngagementLevel } from '@/data/mockData';
@@ -10,9 +10,11 @@ import { Filters } from '@/components/Filters';
 import { RegisterInteractionModal } from '@/components/RegisterInteractionModal';
 import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
+import { SalesByDayModal } from '@/components/SalesByDayModal';
 import { StatusTabs, getClientTab, type StatusTab } from '@/components/StatusTabs';
 import { ModuleNav } from '@/components/ModuleNav';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 const RECEITA_POR_RENOVACAO = 250;
@@ -34,6 +36,7 @@ export default function Index() {
   const [tag, setTag] = useState('all');
   const [tentativasMin, setTentativasMin] = useState('all');
   const [activeTab, setActiveTab] = useState<StatusTab>('todos');
+  const [salesModalOpen, setSalesModalOpen] = useState(false);
 
   const filteredClients = useMemo(() => {
     return clients.filter(c => {
@@ -73,6 +76,24 @@ export default function Index() {
     const taxa = total > 0 ? (renovados / total) * 100 : 0;
     const receita = renovados * RECEITA_POR_RENOVACAO;
     return { total, renovados, emAberto, naoRenovados, taxaRenovacao: taxa, receita };
+  }, [filteredClients]);
+
+  const salesByDay = useMemo(() => {
+    const grouped = filteredClients
+      .filter((client) => client.status === 'renovado' && client.dataRenovacao)
+      .reduce<Record<string, { count: number; revenue: number }>>((acc, client) => {
+        const date = client.dataRenovacao as string;
+        if (!acc[date]) {
+          acc[date] = { count: 0, revenue: 0 };
+        }
+        acc[date].count += 1;
+        acc[date].revenue += RECEITA_POR_RENOVACAO;
+        return acc;
+      }, {});
+
+    return Object.entries(grouped)
+      .map(([date, value]) => ({ date, ...value }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   }, [filteredClients]);
 
   const handlePullClient = (clientId: string) => {
@@ -168,12 +189,18 @@ export default function Index() {
             <h1 className="text-xl font-bold">Gestão de Renovações</h1>
             <p className="text-sm text-muted-foreground">Acompanhe e gerencie as renovações de certificados digitais</p>
           </div>
-          <Filters
-            dateRange={dateRange} vendedor={vendedor}
-            engajamento={engajamento} tag={tag} tentativasMin={tentativasMin}
-            onDateRangeChange={setDateRange} onVendedorChange={setVendedor}
-            onEngajamentoChange={setEngajamento} onTagChange={setTag} onTentativasMinChange={setTentativasMin}
-          />
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+            <Filters
+              dateRange={dateRange} vendedor={vendedor}
+              engajamento={engajamento} tag={tag} tentativasMin={tentativasMin}
+              onDateRangeChange={setDateRange} onVendedorChange={setVendedor}
+              onEngajamentoChange={setEngajamento} onTagChange={setTag} onTentativasMinChange={setTentativasMin}
+            />
+            <Button variant="outline" className="gap-2 self-start" onClick={() => setSalesModalOpen(true)}>
+              <BarChart3 className="h-4 w-4" />
+              Ver vendas por dia
+            </Button>
+          </div>
         </div>
 
         <DashboardCards {...kpis} />
@@ -235,6 +262,12 @@ export default function Index() {
           onClose={() => setContactState(null)}
         />
       )}
+
+      <SalesByDayModal
+        open={salesModalOpen}
+        onOpenChange={setSalesModalOpen}
+        items={salesByDay}
+      />
     </div>
   );
 }
