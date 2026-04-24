@@ -157,6 +157,7 @@ export const mockClients: Client[] = [
       { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'visualizou', whatsappUnread: 2,
+    saleInfo: null,
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -174,6 +175,7 @@ export const mockClients: Client[] = [
       { id: 'i9', date: '2025-04-05 09:30', type: 'whatsapp', whatsappStatus: 'entregue', message: 'Precisamos falar sobre seu certificado.', dispatchStatus: 'entregue' },
     ],
     blacklist: false, tentativasContato: 5, engajamento: 'problema',
+    saleInfo: null,
     processStatus: { paymentLink: 'pending', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
@@ -190,6 +192,7 @@ export const mockClients: Client[] = [
       { id: 'i11', date: '2025-04-12 10:00', type: 'email', message: 'Proposta de renovação A3.', dispatchStatus: 'lido' },
     ],
     blacklist: false, tentativasContato: 2, engajamento: 'engajado',
+    saleInfo: { paidAt: '2026-04-24 11:18', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'done', scheduling: 'done', videoConference: 'pending', certificate: 'pending' },
   },
   {
