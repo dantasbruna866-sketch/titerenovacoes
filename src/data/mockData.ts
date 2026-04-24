@@ -157,7 +157,7 @@ export const mockClients: Client[] = [
       { id: 'i6', date: '2025-04-07 15:30', type: 'ligacao', callStatus: 'atendeu', durationMinutes: 4, spokeWithClient: true, notes: 'Disse que vai pensar' },
     ],
     blacklist: false, tentativasContato: 3, engajamento: 'visualizou', whatsappUnread: 2,
-    saleInfo: null,
+    saleInfo: { paidAt: '2026-04-24 09:48', certificateLabel: 'e-CNPJ A1', amountPaid: 230 },
     processStatus: { paymentLink: 'done', payment: 'pending', scheduling: 'pending', videoConference: 'pending', certificate: 'pending' },
   },
   {
