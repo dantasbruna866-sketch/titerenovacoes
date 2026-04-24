@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, Download, BarChart3 } from 'lucide-react';
+import { Search, Download, BarChart3, TimerReset } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import logoIdentite from '@/assets/logo-identite.png';
 import { mockProspects, type Prospect, type ProspectStatus } from '@/data/mockProspects';
@@ -11,6 +11,7 @@ import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
 import { Filters } from '@/components/Filters';
 import { SalesByDayModal } from '@/components/SalesByDayModal';
+import { ReturnsByDayModal } from '@/components/ReturnsByDayModal';
 import { StatusTabs, getProspectTab, type ProspectTab } from '@/components/StatusTabs';
 import { ModuleNav } from '@/components/ModuleNav';
 import { Input } from '@/components/ui/input';
@@ -62,6 +63,8 @@ export default function Prospeccoes() {
   const [activeTab, setActiveTab] = useState<ProspectTab>('todos');
   const [salesModalOpen, setSalesModalOpen] = useState(false);
   const [selectedSalesDate, setSelectedSalesDate] = useState(DEFAULT_SALES_DATE);
+  const [returnsModalOpen, setReturnsModalOpen] = useState(false);
+  const [selectedReturnDate, setSelectedReturnDate] = useState(DEFAULT_SALES_DATE);
 
   const filteredProspects = useMemo(() => {
     return prospects.filter(p => {
@@ -213,6 +216,21 @@ export default function Prospeccoes() {
     [salesByDay]
   );
 
+  const returnsByDay = useMemo(() => {
+    return prospects
+      .filter((prospect) => prospect.dataRetorno && getDatePart(prospect.dataRetorno) === selectedReturnDate)
+      .map((prospect) => ({
+        id: prospect.id,
+        clientName: prospect.razaoSocial,
+        cnpj: prospect.cnpj,
+        phone: prospect.telefone,
+        email: prospect.email,
+        returnAt: prospect.dataRetorno!,
+        returnAction: prospect.retornoAcao,
+      }))
+      .sort((a, b) => a.returnAt.localeCompare(b.returnAt));
+  }, [prospects, selectedReturnDate]);
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b sticky top-0 z-40 shadow-sm">
@@ -244,6 +262,10 @@ export default function Prospeccoes() {
               <Button variant="outline" className="gap-2" onClick={() => setSalesModalOpen(true)}>
                 <BarChart3 className="h-4 w-4" />
                 Ver vendas por dia
+              </Button>
+              <Button variant="outline" className="gap-2" onClick={() => setReturnsModalOpen(true)}>
+                <TimerReset className="h-4 w-4" />
+                Ver retornos do dia
               </Button>
               <Button onClick={handleImportEmpresAqui} className="gap-2">
                 <Download className="h-4 w-4" />
@@ -343,6 +365,14 @@ export default function Prospeccoes() {
         onDateChange={setSelectedSalesDate}
         items={salesByDay}
         totalRevenue={salesTotal}
+      />
+
+      <ReturnsByDayModal
+        open={returnsModalOpen}
+        onOpenChange={setReturnsModalOpen}
+        selectedDate={selectedReturnDate}
+        onDateChange={setSelectedReturnDate}
+        items={returnsByDay}
       />
     </div>
   );
