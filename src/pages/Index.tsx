@@ -59,6 +59,11 @@ export default function Index() {
     });
   }, [clients, dateRange, vendedor, engajamento, tag, tentativasMin, search]);
 
+  const tabFilteredClients = useMemo(() => {
+    if (activeTab === 'todos') return filteredClients;
+    return filteredClients.filter(c => getClientTab(c) === activeTab);
+  }, [filteredClients, activeTab]);
+
   const kpis = useMemo(() => {
     const total = filteredClients.length;
     const renovados = filteredClients.filter(c => c.status === 'renovado').length;
