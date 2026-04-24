@@ -156,6 +156,8 @@ export default function Index() {
     notes?: string;
     durationMinutes?: number;
     spokeWithClient?: boolean;
+    dataRetorno?: string;
+    retornoAcao?: string;
   }) => {
     if (!interactionClient) return;
     const clientId = interactionClient.id;
