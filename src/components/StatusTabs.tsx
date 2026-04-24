@@ -1,4 +1,4 @@
-import { Users, Phone, UserX, XCircle, Star, CheckCircle2, Clock, Target, Sparkles, Trash2, MessageCircle, Mail } from 'lucide-react';
+import { Users, Phone, UserX, XCircle, Star, CheckCircle2, Clock, Target, Sparkles, Trash2, MessageCircle, Mail, TimerReset } from 'lucide-react';
 import type { Client } from '@/data/mockData';
 import type { Prospect } from '@/data/mockProspects';
 
@@ -11,7 +11,8 @@ export type StatusTab =
   | 'interessado'
   | 'em_negociacao'
   | 'renovado'
-  | 'nao_renovado';
+  | 'nao_renovado'
+  | 'retornos_dia';
 
 export function getClientTab(client: Client): Exclude<StatusTab, 'todos'> {
   if (client.status === 'renovado') return 'renovado';
@@ -31,9 +32,10 @@ const RENEWAL_META: Record<StatusTab, { label: string; icon: React.ComponentType
   em_negociacao:   { label: 'Em negociação',   icon: Phone,        color: 'text-indigo-500',       activeColor: 'border-indigo-600 text-indigo-700' },
   renovado:        { label: 'Renovado',        icon: CheckCircle2, color: 'text-emerald-600',      activeColor: 'border-emerald-600 text-emerald-700' },
   nao_renovado:    { label: 'Não renovado',    icon: XCircle,      color: 'text-rose-500',         activeColor: 'border-rose-600 text-rose-700' },
+  retornos_dia:    { label: 'Retornos do dia', icon: TimerReset,   color: 'text-violet-500',       activeColor: 'border-violet-600 text-violet-700' },
 };
 
-const RENEWAL_ORDER: StatusTab[] = ['todos', 'em_atendimento', 'nao_contatado', 'interessado', 'em_negociacao', 'renovado', 'nao_renovado'];
+const RENEWAL_ORDER: StatusTab[] = ['todos', 'em_atendimento', 'nao_contatado', 'interessado', 'em_negociacao', 'renovado', 'nao_renovado', 'retornos_dia'];
 
 /* ======================== PROSPECÇÕES ======================== */
 
@@ -70,6 +72,7 @@ interface StatusTabsProps {
   prospects?: Prospect[];
   activeTab: string;
   onTabChange: (tab: string) => void;
+  returnDate?: string;
 }
 
 function getClientPendingMessages(client: Pick<Client, 'whatsappUnread' | 'interactions'>) {
@@ -81,7 +84,7 @@ function getClientPendingMessages(client: Pick<Client, 'whatsappUnread' | 'inter
   return { whatsapp, email };
 }
 
-export function StatusTabs({ variant = 'renewals', clients = [], prospects = [], activeTab, onTabChange }: StatusTabsProps) {
+export function StatusTabs({ variant = 'renewals', clients = [], prospects = [], activeTab, onTabChange, returnDate }: StatusTabsProps) {
   const isProspects = variant === 'prospects';
   const meta = isProspects ? PROSPECT_META : RENEWAL_META;
   const order = isProspects ? PROSPECT_ORDER : RENEWAL_ORDER;
@@ -113,6 +116,11 @@ export function StatusTabs({ variant = 'renewals', clients = [], prospects = [],
       counts[t] = (counts[t] || 0) + 1;
       accumulatePendingMessages(t, c);
       accumulatePendingMessages('todos', c);
+
+      if (returnDate && c.dataRetorno?.startsWith(returnDate)) {
+        counts.retornos_dia = (counts.retornos_dia || 0) + 1;
+        accumulatePendingMessages('retornos_dia', c);
+      }
     });
     counts.todos = clients.length;
   }
