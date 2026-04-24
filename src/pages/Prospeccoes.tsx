@@ -120,6 +120,20 @@ export default function Prospeccoes() {
     toast({ title: 'Observação adicionada!' });
   }, [toast]);
 
+  const handleUpdateReturn = useCallback((clientId: string, dataRetorno?: string, retornoAcao?: string) => {
+    setProspects(prev => prev.map(p => {
+      if (p.id !== clientId) return p;
+      const updated = {
+        ...p,
+        dataRetorno: dataRetorno || null,
+        retornoAcao: retornoAcao || null,
+      };
+      setSelectedClient(prevSelected => prevSelected?.id === clientId ? prospectToClient(updated) : prevSelected);
+      return updated;
+    }));
+    toast({ title: 'Retorno atualizado!' });
+  }, [toast]);
+
   const handleRegisterInteraction = useCallback((data: {
     type: InteractionType;
     callStatus?: CallStatus;
@@ -128,6 +142,8 @@ export default function Prospeccoes() {
     notes?: string;
     durationMinutes?: number;
     spokeWithClient?: boolean;
+    dataRetorno?: string;
+    retornoAcao?: string;
   }) => {
     if (!interactionClient) return;
     const clientId = interactionClient.id;
@@ -143,6 +159,8 @@ export default function Prospeccoes() {
         ...p,
         interactions: [...p.interactions, newInteraction],
         tentativasContato: p.tentativasContato + 1,
+        dataRetorno: data.dataRetorno || p.dataRetorno || null,
+        retornoAcao: data.retornoAcao || p.retornoAcao || null,
       };
       // recalcula engajamento usando o tipo Client (compatível em estrutura)
       updated.engajamento = getEngagementLevel(prospectToClient(updated));
@@ -288,12 +306,15 @@ export default function Prospeccoes() {
           }}
           onAddObservation={handleAddObservation}
           onRegisterInteraction={setInteractionClient}
+          onUpdateReturn={handleUpdateReturn}
         />
       )}
 
       {interactionClient && (
         <RegisterInteractionModal
           clientName={interactionClient.razaoSocial}
+          initialReturnAt={interactionClient.dataRetorno}
+          initialReturnAction={interactionClient.retornoAcao}
           onClose={() => setInteractionClient(null)}
           onSubmit={handleRegisterInteraction}
         />
