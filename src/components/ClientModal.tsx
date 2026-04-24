@@ -11,6 +11,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { allTags, vendedores, type ClientStatus, type EngagementLevel } from '@/data/mockData';
 
 interface ClientModalProps {
   client: Client;
@@ -19,6 +22,12 @@ interface ClientModalProps {
   onAddObservation: (clientId: string, text: string) => void;
   onRegisterInteraction: (client: Client) => void;
   onUpdateReturn: (clientId: string, dataRetorno?: string, retornoAcao?: string) => void;
+  onUpdateClientMeta: (clientId: string, data: {
+    vendedor: string | null;
+    status: ClientStatus;
+    engajamento: EngagementLevel;
+    tags: string[];
+  }) => void;
 }
 
 function toDateTimeLocalValue(value?: string | null) {
@@ -82,11 +91,15 @@ function InteractionItem({ interaction }: { interaction: Interaction }) {
   );
 }
 
-export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, onRegisterInteraction, onUpdateReturn }: ClientModalProps) {
+export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, onRegisterInteraction, onUpdateReturn, onUpdateClientMeta }: ClientModalProps) {
   const [newObs, setNewObs] = useState('');
   const [showAllObs, setShowAllObs] = useState(false);
   const [returnAt, setReturnAt] = useState(toDateTimeLocalValue(client.dataRetorno));
   const [returnAction, setReturnAction] = useState(client.retornoAcao ?? '');
+  const [assignedSeller, setAssignedSeller] = useState(client.vendedor ?? 'unassigned');
+  const [manualStatus, setManualStatus] = useState<ClientStatus>(client.status);
+  const [manualEngagement, setManualEngagement] = useState<EngagementLevel>(client.engajamento);
+  const [manualTags, setManualTags] = useState<string[]>(client.tags);
 
   const handleAddObs = () => {
     if (!newObs.trim()) return;
@@ -96,6 +109,19 @@ export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, 
 
   const handleSaveReturn = () => {
     onUpdateReturn(client.id, returnAt ? returnAt.replace('T', ' ') : undefined, returnAction.trim() || undefined);
+  };
+
+  const toggleTag = (tag: string) => {
+    setManualTags((prev) => prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]);
+  };
+
+  const handleSaveMeta = () => {
+    onUpdateClientMeta(client.id, {
+      vendedor: assignedSeller === 'unassigned' ? null : assignedSeller,
+      status: manualStatus,
+      engajamento: manualEngagement,
+      tags: manualTags,
+    });
   };
 
   const visibleObs = showAllObs ? client.observacoes : client.observacoes.slice(0, 2);
@@ -153,6 +179,80 @@ export function ClientModal({ client, onClose, onMarkRenewed, onAddObservation, 
                 </div>
                 <div className="flex justify-end">
                   <Button size="sm" variant="outline" onClick={handleSaveReturn}>Salvar retorno</Button>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Classificação comercial</h3>
+              <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Vendedor</Label>
+                    <Select value={assignedSeller} onValueChange={setAssignedSeller}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unassigned">Sem vendedor</SelectItem>
+                        {vendedores.map((seller) => (
+                          <SelectItem key={seller} value={seller}>{seller}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Status</Label>
+                    <Select value={manualStatus} onValueChange={(value) => setManualStatus(value as ClientStatus)}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="em_andamento">Em andamento</SelectItem>
+                        <SelectItem value="renovado">Renovado</SelectItem>
+                        <SelectItem value="nao_renovado">Não renovado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Engajamento</Label>
+                    <Select value={manualEngagement} onValueChange={(value) => setManualEngagement(value as EngagementLevel)}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="engajado">Engajado</SelectItem>
+                        <SelectItem value="visualizou">Visualizou</SelectItem>
+                        <SelectItem value="frio">Frio</SelectItem>
+                        <SelectItem value="problema">Problema</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs text-muted-foreground">Tags</Label>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {allTags.map((tag) => {
+                      const isActive = manualTags.includes(tag);
+                      return (
+                        <Button
+                          key={tag}
+                          type="button"
+                          size="sm"
+                          variant={isActive ? 'default' : 'outline'}
+                          className="h-8"
+                          onClick={() => toggleTag(tag)}
+                        >
+                          {tag}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button size="sm" variant="outline" onClick={handleSaveMeta}>Salvar classificação</Button>
                 </div>
               </div>
             </section>
