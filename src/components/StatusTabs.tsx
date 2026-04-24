@@ -1,4 +1,4 @@
-import { Users, Phone, UserX, XCircle, Star, CheckCircle2, Clock, Target, Sparkles, Trash2 } from 'lucide-react';
+import { Users, Phone, UserX, XCircle, Star, CheckCircle2, Clock, Target, Sparkles, Trash2, MessageCircle, Mail } from 'lucide-react';
 import type { Client } from '@/data/mockData';
 import type { Prospect } from '@/data/mockProspects';
 
@@ -72,22 +72,47 @@ interface StatusTabsProps {
   onTabChange: (tab: string) => void;
 }
 
+function getClientPendingMessages(client: Pick<Client, 'whatsappUnread' | 'interactions'>) {
+  const whatsapp = client.whatsappUnread ?? 0;
+  const email = client.interactions.filter(
+    (interaction) => interaction.type === 'email' && interaction.dispatchStatus !== 'lido'
+  ).length;
+
+  return { whatsapp, email };
+}
+
 export function StatusTabs({ variant = 'renewals', clients = [], prospects = [], activeTab, onTabChange }: StatusTabsProps) {
   const isProspects = variant === 'prospects';
   const meta = isProspects ? PROSPECT_META : RENEWAL_META;
   const order = isProspects ? PROSPECT_ORDER : RENEWAL_ORDER;
 
   const counts: Record<string, number> = {};
+  const pendingMessages: Record<string, { whatsapp: number; email: number }> = {};
+
+  const accumulatePendingMessages = (tab: string, client: Pick<Client, 'whatsappUnread' | 'interactions'>) => {
+    const current = pendingMessages[tab] || { whatsapp: 0, email: 0 };
+    const next = getClientPendingMessages(client);
+
+    pendingMessages[tab] = {
+      whatsapp: current.whatsapp + next.whatsapp,
+      email: current.email + next.email,
+    };
+  };
+
   if (isProspects) {
     prospects.forEach(p => {
       const t = getProspectTab(p);
       counts[t] = (counts[t] || 0) + 1;
+      accumulatePendingMessages(t, p);
+      accumulatePendingMessages('todos', p);
     });
     counts.todos = prospects.length;
   } else {
     clients.forEach(c => {
       const t = getClientTab(c);
       counts[t] = (counts[t] || 0) + 1;
+      accumulatePendingMessages(t, c);
+      accumulatePendingMessages('todos', c);
     });
     counts.todos = clients.length;
   }
@@ -100,6 +125,7 @@ export function StatusTabs({ variant = 'renewals', clients = [], prospects = [],
           const Icon = m.icon;
           const isActive = activeTab === tab;
           const count = counts[tab] || 0;
+          const messages = pendingMessages[tab] || { whatsapp: 0, email: 0 };
           return (
             <button
               key={tab}
@@ -120,6 +146,24 @@ export function StatusTabs({ variant = 'renewals', clients = [], prospects = [],
               `}>
                 {count}
               </span>
+              <div className="ml-1 flex items-center gap-2">
+                <span className="relative inline-flex items-center justify-center">
+                  <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                  {messages.whatsapp > 0 && (
+                    <span className="absolute -right-2 -top-2 min-w-4 rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-foreground">
+                      {messages.whatsapp}
+                    </span>
+                  )}
+                </span>
+                <span className="relative inline-flex items-center justify-center">
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                  {messages.email > 0 && (
+                    <span className="absolute -right-2 -top-2 min-w-4 rounded-full bg-secondary px-1 text-[10px] font-bold leading-4 text-secondary-foreground">
+                      {messages.email}
+                    </span>
+                  )}
+                </span>
+              </div>
             </button>
           );
         })}
