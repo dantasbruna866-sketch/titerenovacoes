@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { RefreshCw, Target } from 'lucide-react';
+import { Home, RefreshCw, Target } from 'lucide-react';
 
 export function ModuleNav() {
   const baseClass = 'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors';
@@ -8,6 +8,13 @@ export function ModuleNav() {
 
   return (
     <nav className="flex items-center gap-1">
+      <NavLink
+        to="/home"
+        className={({ isActive }) => `${baseClass} ${isActive ? activeClass : inactiveClass}`}
+      >
+        <Home className="h-4 w-4" />
+        <span>Home</span>
+      </NavLink>
       <NavLink
         to="/"
         end
