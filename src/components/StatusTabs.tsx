@@ -89,7 +89,7 @@ export function StatusTabs({ variant = 'renewals', clients = [], prospects = [],
   const counts: Record<string, number> = {};
   const pendingMessages: Record<string, { whatsapp: number; email: number }> = {};
 
-  const accumulatePendingMessages = (tab: string, client: Client) => {
+  const accumulatePendingMessages = (tab: string, client: Pick<Client, 'whatsappUnread' | 'interactions'>) => {
     const current = pendingMessages[tab] || { whatsapp: 0, email: 0 };
     const next = getClientPendingMessages(client);
 
