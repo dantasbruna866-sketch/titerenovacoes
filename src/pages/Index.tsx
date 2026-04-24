@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, BarChart3 } from 'lucide-react';
+import { Search, BarChart3, TimerReset } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import logoIdentite from '@/assets/logo-identite.png';
 import { mockClients, type Client, type InteractionType, type CallStatus, type WhatsAppStatus, getEngagementLevel } from '@/data/mockData';
@@ -11,6 +11,7 @@ import { RegisterInteractionModal } from '@/components/RegisterInteractionModal'
 import { AllInteractionsModal } from '@/components/AllInteractionsModal';
 import { ContactModal } from '@/components/ContactModal';
 import { SalesByDayModal } from '@/components/SalesByDayModal';
+import { ReturnsByDayModal } from '@/components/ReturnsByDayModal';
 import { StatusTabs, getClientTab, type StatusTab } from '@/components/StatusTabs';
 import { ModuleNav } from '@/components/ModuleNav';
 import { Input } from '@/components/ui/input';
@@ -42,6 +43,8 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<StatusTab>('todos');
   const [salesModalOpen, setSalesModalOpen] = useState(false);
   const [selectedSalesDate, setSelectedSalesDate] = useState(DEFAULT_SALES_DATE);
+  const [returnsModalOpen, setReturnsModalOpen] = useState(false);
+  const [selectedReturnDate, setSelectedReturnDate] = useState(DEFAULT_SALES_DATE);
 
   const filteredClients = useMemo(() => {
     return clients.filter(c => {
@@ -101,6 +104,21 @@ export default function Index() {
     () => salesByDay.reduce((acc, item) => acc + item.amountPaid, 0),
     [salesByDay]
   );
+
+  const returnsByDay = useMemo(() => {
+    return clients
+      .filter((client) => client.dataRetorno && getDatePart(client.dataRetorno) === selectedReturnDate)
+      .map((client) => ({
+        id: client.id,
+        clientName: client.razaoSocial,
+        cnpj: client.cnpj,
+        phone: client.telefone,
+        email: client.email,
+        returnAt: client.dataRetorno!,
+        returnAction: client.retornoAcao,
+      }))
+      .sort((a, b) => a.returnAt.localeCompare(b.returnAt));
+  }, [clients, selectedReturnDate]);
 
   const handlePullClient = (clientId: string) => {
     setClients(prev => prev.map(c =>
@@ -224,6 +242,10 @@ export default function Index() {
               <BarChart3 className="h-4 w-4" />
               Ver vendas por dia
             </Button>
+            <Button variant="outline" className="gap-2 self-start" onClick={() => setReturnsModalOpen(true)}>
+              <TimerReset className="h-4 w-4" />
+              Ver retornos do dia
+            </Button>
           </div>
         </div>
 
@@ -297,6 +319,14 @@ export default function Index() {
         onDateChange={setSelectedSalesDate}
         items={salesByDay}
         totalRevenue={salesTotal}
+      />
+
+      <ReturnsByDayModal
+        open={returnsModalOpen}
+        onOpenChange={setReturnsModalOpen}
+        selectedDate={selectedReturnDate}
+        onDateChange={setSelectedReturnDate}
+        items={returnsByDay}
       />
     </div>
   );
