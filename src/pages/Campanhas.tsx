@@ -31,6 +31,15 @@ import {
   BarChart3,
   Megaphone,
   ChevronRight,
+  Settings,
+  Server,
+  Shield,
+  Lock,
+  Bell,
+  Palette,
+  Wrench,
+  ScrollText,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
