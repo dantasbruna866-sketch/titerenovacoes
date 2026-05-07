@@ -1325,3 +1325,382 @@ function ToolbarBtn({
     </Tooltip>
   );
 }
+
+// ============================================================================
+// CONFIGURAÇÕES
+// ============================================================================
+
+const SETTINGS_TABS = [
+  { id: 'geral', label: 'Geral', icon: Settings },
+  { id: 'desempenho', label: 'Desempenho', icon: Wrench },
+  { id: 'privacidade', label: 'Privacidade', icon: Shield },
+  { id: 'seguranca', label: 'Segurança', icon: Lock },
+  { id: 'midias', label: 'Envios de mídias', icon: ImageIcon },
+  { id: 'smtp', label: 'SMTP', icon: Server },
+  { id: 'rejeicoes', label: 'Rejeições', icon: Bell },
+  { id: 'mensageiros', label: 'Mensageiros', icon: Send },
+  { id: 'aparencia', label: 'Aparência', icon: Palette },
+] as const;
+
+function ConfiguracoesPanel() {
+  const { toast } = useToast();
+  const [tab, setTab] = useState<typeof SETTINGS_TABS[number]['id']>('smtp');
+  const [smtpEnabled, setSmtpEnabled] = useState(true);
+  const [skipTls, setSkipTls] = useState(false);
+
+  const handleSave = () => toast({ title: 'Configurações salvas', description: 'Suas alterações foram aplicadas.' });
+  const handleTest = () => toast({ title: 'Conexão testada', description: 'SMTP conectado com sucesso em mail.certite.com.br:465' });
+
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Configurações <span className="text-sm font-normal text-muted-foreground">(v6.1.0)</span></h1>
+          <p className="text-sm text-muted-foreground">Ajustes do servidor de e-mail, segurança e personalização</p>
+        </div>
+        <Button onClick={handleSave} className="gap-2"><Save className="h-4 w-4" /> Salvar alterações</Button>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
+            <div className="border-b px-4">
+              <TabsList className="bg-transparent h-auto p-0 gap-1">
+                {SETTINGS_TABS.map((t) => (
+                  <TabsTrigger
+                    key={t.id}
+                    value={t.id}
+                    className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none px-4 py-3"
+                  >
+                    {t.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+
+            {/* SMTP */}
+            <TabsContent value="smtp" className="p-6 space-y-6 m-0">
+              <div className="flex items-start gap-6">
+                <div className="space-y-2 w-44">
+                  <Label className="text-sm font-semibold">Habilitado</Label>
+                  <Switch checked={smtpEnabled} onCheckedChange={setSmtpEnabled} />
+                  <p className="text-xs text-muted-foreground">Ativar este servidor SMTP para envios.</p>
+                </div>
+
+                <div className="grid grid-cols-12 gap-4 flex-1">
+                  <div className="col-span-9 space-y-1">
+                    <Label>Host</Label>
+                    <Input defaultValue="mail.certite.com.br" />
+                    <p className="text-xs text-muted-foreground">Endereço do servidor SMTP.</p>
+                  </div>
+                  <div className="col-span-3 space-y-1">
+                    <Label>Porta</Label>
+                    <Input type="number" defaultValue="465" />
+                    <p className="text-xs text-muted-foreground">Porta do servidor SMTP.</p>
+                  </div>
+
+                  <div className="col-span-3 space-y-1">
+                    <Label>Protocolo de autenticação</Label>
+                    <Select defaultValue="LOGIN">
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LOGIN">LOGIN</SelectItem>
+                        <SelectItem value="PLAIN">PLAIN</SelectItem>
+                        <SelectItem value="CRAM-MD5">CRAM-MD5</SelectItem>
+                        <SelectItem value="NONE">Nenhum</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-5 space-y-1">
+                    <Label>Usuário</Label>
+                    <Input defaultValue="info@certite.com.br" />
+                  </div>
+                  <div className="col-span-4 space-y-1">
+                    <Label>Senha</Label>
+                    <Input type="password" defaultValue="••••••••••••" />
+                    <p className="text-xs text-muted-foreground">Digite para alterar.</p>
+                  </div>
+
+                  <div className="col-span-12 flex flex-wrap gap-3 text-xs text-primary">
+                    {['Gmail', 'Amazon SES', 'Mailgun', 'Mailjet', 'Sendgrid', 'Postmark', 'Forward Email', 'Lettermint'].map((p) => (
+                      <button key={p} type="button" className="hover:underline">{p}</button>
+                    ))}
+                  </div>
+
+                  <div className="col-span-6 space-y-1">
+                    <Label>Nome do host HELO</Label>
+                    <Input placeholder="Opcional" />
+                    <p className="text-xs text-muted-foreground">Alguns servidores SMTP exigem um FQDN no HELO.</p>
+                  </div>
+                  <div className="col-span-3 space-y-1">
+                    <Label>TLS</Label>
+                    <Select defaultValue="SSL/TLS">
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SSL/TLS">SSL/TLS</SelectItem>
+                        <SelectItem value="STARTTLS">STARTTLS</SelectItem>
+                        <SelectItem value="Nenhum">Nenhum</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-3 space-y-2">
+                    <Label>Pular verificação de TLS</Label>
+                    <Switch checked={skipTls} onCheckedChange={setSkipTls} />
+                  </div>
+
+                  <div className="col-span-3 space-y-1">
+                    <Label>Máx. conexões</Label>
+                    <Input type="number" defaultValue="10" />
+                  </div>
+                  <div className="col-span-3 space-y-1">
+                    <Label>Tentativas</Label>
+                    <Input type="number" defaultValue="2" />
+                  </div>
+                  <div className="col-span-3 space-y-1">
+                    <Label>Tempo limite ocioso</Label>
+                    <Input defaultValue="15s" />
+                  </div>
+                  <div className="col-span-3 space-y-1">
+                    <Label>Tempo limite de espera</Label>
+                    <Input defaultValue="5s" />
+                  </div>
+
+                  <div className="col-span-12 space-y-1">
+                    <Label>Nome</Label>
+                    <Input defaultValue="email-primary-server" />
+                    <p className="text-xs text-muted-foreground">Nome único para este servidor SMTP. Útil para selecionar um servidor específico em campanhas.</p>
+                  </div>
+
+                  <div className="col-span-12">
+                    <button type="button" className="text-xs text-primary hover:underline">+ Definir cabeçalhos personalizados</button>
+                  </div>
+
+                  <div className="col-span-12 flex justify-between border-t pt-4">
+                    <Button variant="outline" className="gap-2"><Plus className="h-4 w-4" /> Adicionar novo</Button>
+                    <Button variant="secondary" onClick={handleTest} className="gap-2">
+                      <CheckCircle2 className="h-4 w-4" /> Testar conexão
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* DESEMPENHO */}
+            <TabsContent value="desempenho" className="p-6 space-y-5 m-0">
+              <div className="grid grid-cols-2 gap-6 max-w-3xl">
+                <SettingNumber label="Concorrência" defaultValue={100} hint="Máximo de trabalhadores simultâneos (threads) que tentarão enviar mensagens." />
+                <SettingNumber label="Taxa de mensagens" defaultValue={10000} hint="Mensagens por segundo enviadas por trabalhador." />
+                <SettingNumber label="Tamanho do lote" defaultValue={100000} hint="Linhas processadas do banco de dados por iteração." />
+                <SettingNumber label="Limite máximo de erros" defaultValue={10000} hint="Erros consecutivos antes de pausar a campanha." />
+              </div>
+              <div className="border-t pt-4 space-y-3 max-w-3xl">
+                <div className="flex items-start gap-4">
+                  <Switch />
+                  <div>
+                    <Label className="text-sm">Habilitar limite de janela deslizante</Label>
+                    <p className="text-xs text-muted-foreground">Limita o número total de mensagens em um período.</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pl-12">
+                  <div><Label>Máx. mensagens</Label><Input type="number" defaultValue="10000" /></div>
+                  <div><Label>Duração</Label><Input defaultValue="1h" /></div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* PRIVACIDADE */}
+            <TabsContent value="privacidade" className="p-6 space-y-4 m-0 max-w-3xl">
+              <SettingToggle title="Permitir cancelamento de inscrição com um clique" desc="Adiciona cabeçalhos List-Unsubscribe nos e-mails." defaultChecked />
+              <SettingToggle title="Permitir gerenciamento de preferências" desc="Permite aos assinantes alterar listas e dados." defaultChecked />
+              <SettingToggle title="Permitir exportação de dados pessoais" desc="Conformidade com LGPD/GDPR." defaultChecked />
+              <SettingToggle title="Permitir exclusão de conta" desc="Inscritos podem deletar seus próprios dados." />
+              <div className="space-y-1">
+                <Label>Domínios de e-mail permitidos</Label>
+                <Textarea placeholder="exemplo.com.br" rows={3} />
+                <p className="text-xs text-muted-foreground">Um domínio por linha. Deixe vazio para permitir todos.</p>
+              </div>
+            </TabsContent>
+
+            {/* SEGURANÇA */}
+            <TabsContent value="seguranca" className="p-6 space-y-4 m-0 max-w-3xl">
+              <SettingToggle title="Habilitar CAPTCHA em formulários públicos" desc="Protege contra inscrições automatizadas." defaultChecked />
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Chave do site (hCaptcha)</Label><Input placeholder="0x..." /></div>
+                <div><Label>Chave secreta</Label><Input type="password" placeholder="••••••••" /></div>
+              </div>
+              <SettingToggle title="Forçar HTTPS" desc="Redireciona todo tráfego HTTP para HTTPS." defaultChecked />
+              <SettingToggle title="Habilitar autenticação em dois fatores (2FA)" desc="Recomendado para todos os administradores." />
+            </TabsContent>
+
+            {/* ENVIOS DE MÍDIAS */}
+            <TabsContent value="midias" className="p-6 space-y-4 m-0 max-w-3xl">
+              <div>
+                <Label>Provedor</Label>
+                <Select defaultValue="filesystem">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="filesystem">Sistema de arquivos local</SelectItem>
+                    <SelectItem value="s3">Amazon S3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Caminho de upload</Label><Input defaultValue="/uploads" /></div>
+              <div><Label>URI de upload</Label><Input defaultValue="/uploads" /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Extensões permitidas</Label><Input defaultValue="jpg jpeg png gif svg webp pdf" /></div>
+                <div><Label>Tamanho máximo (KB)</Label><Input type="number" defaultValue="5000" /></div>
+              </div>
+            </TabsContent>
+
+            {/* REJEIÇÕES */}
+            <TabsContent value="rejeicoes" className="p-6 space-y-4 m-0 max-w-3xl">
+              <SettingToggle title="Habilitar processamento de bounces" desc="Marca automaticamente assinantes com e-mails que retornam." defaultChecked />
+              <div className="grid grid-cols-2 gap-4">
+                <SettingNumber label="Limite de soft bounce" defaultValue={5} hint="Após N rejeições brandas, marcar como rejeitado." />
+                <SettingNumber label="Limite de hard bounce" defaultValue={1} hint="Após N rejeições graves, bloquear o assinante." />
+              </div>
+              <SettingToggle title="Bloquear automaticamente em reclamação de spam" desc="Adiciona o e-mail à lista de bloqueio." defaultChecked />
+            </TabsContent>
+
+            {/* MENSAGEIROS */}
+            <TabsContent value="mensageiros" className="p-6 space-y-3 m-0 max-w-3xl">
+              <p className="text-sm text-muted-foreground">Configure servidores adicionais (SMS, WhatsApp, push) usados em campanhas multicanal.</p>
+              <Card>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center"><Send className="h-5 w-5" /></div>
+                    <div>
+                      <p className="font-medium">WhatsApp Cloud API</p>
+                      <p className="text-xs text-muted-foreground">Conectado · phone_id 5511...</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-emerald-100 text-emerald-700 border-0">Ativo</Badge>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center"><Mail className="h-5 w-5" /></div>
+                    <div>
+                      <p className="font-medium">SMS Gateway (Twilio)</p>
+                      <p className="text-xs text-muted-foreground">Não configurado</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">Configurar</Button>
+                </CardContent>
+              </Card>
+              <Button variant="outline" className="gap-2"><Plus className="h-4 w-4" /> Adicionar mensageiro</Button>
+            </TabsContent>
+
+            {/* APARÊNCIA */}
+            <TabsContent value="aparencia" className="p-6 space-y-4 m-0 max-w-3xl">
+              <div><Label>Nome do site</Label><Input defaultValue="Identité Certificado Digital" /></div>
+              <div><Label>URL raiz</Label><Input defaultValue="https://titerenovacoes.lovable.app" /></div>
+              <div><Label>E-mail do administrador</Label><Input defaultValue="info@certite.com.br" /></div>
+              <div><Label>Logo (URL)</Label><Input placeholder="https://..." /></div>
+              <SettingToggle title="Modo escuro por padrão" desc="Aplica tema escuro ao painel administrativo." />
+            </TabsContent>
+
+            {/* GERAL */}
+            <TabsContent value="geral" className="p-6 space-y-4 m-0 max-w-3xl">
+              <div><Label>Nome do remetente padrão</Label><Input defaultValue="Identité" /></div>
+              <div><Label>E-mail do remetente padrão</Label><Input defaultValue="info@certite.com.br" /></div>
+              <div><Label>Idioma</Label>
+                <Select defaultValue="pt-BR">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Español</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Fuso horário</Label>
+                <Select defaultValue="America/Sao_Paulo">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="America/Sao_Paulo">America/Sao_Paulo (GMT-3)</SelectItem>
+                    <SelectItem value="UTC">UTC</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <SettingToggle title="Habilitar API pública" desc="Permite integrações externas via REST." defaultChecked />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
+
+function SettingToggle({ title, desc, defaultChecked }: { title: string; desc: string; defaultChecked?: boolean }) {
+  const [v, setV] = useState(!!defaultChecked);
+  return (
+    <div className="flex items-start justify-between gap-4 py-2 border-b last:border-0">
+      <div>
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{desc}</p>
+      </div>
+      <Switch checked={v} onCheckedChange={setV} />
+    </div>
+  );
+}
+
+function SettingNumber({ label, defaultValue, hint }: { label: string; defaultValue: number; hint?: string }) {
+  return (
+    <div className="space-y-1">
+      <Label>{label}</Label>
+      <Input type="number" defaultValue={defaultValue} />
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+// ============================================================================
+// LOGS
+// ============================================================================
+
+const LOG_LINES = Array.from({ length: 60 }).map((_, i) => {
+  const ts = `2026/05/07 15:17:${String(43 + Math.floor(i / 10)).padStart(2, '0')}.${String(100000 + i * 1731).slice(-6)}`;
+  const sub = 191350 + i;
+  const variants = [
+    `error sending message in campaign Maio Geral - C/ os dados: subscriber ${sub}: timed out waiting for free conn in pool`,
+    `error sending message in campaign Maio Geral - C/ os dados: subscriber ${sub}: dial tcp 199.188.203.10:465: i/o timeout`,
+    `info  campaign 'Boas-vindas Junho' queued ${sub} messages`,
+    `info  smtp connection established mail.certite.com.br:465`,
+  ];
+  return { ts, msg: variants[i % variants.length], level: i % 4 === 2 || i % 4 === 3 ? 'info' : 'error' };
+});
+
+function LogsPanel() {
+  const [filter, setFilter] = useState('');
+  const filtered = LOG_LINES.filter((l) => l.msg.toLowerCase().includes(filter.toLowerCase()));
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Logs</h1>
+          <p className="text-sm text-muted-foreground">Eventos do sistema em tempo real</p>
+        </div>
+        <div className="flex gap-2">
+          <Input placeholder="Filtrar logs..." value={filter} onChange={(e) => setFilter(e.target.value)} className="w-64 h-9" />
+          <Button variant="outline" className="gap-2"><Save className="h-4 w-4" /> Exportar</Button>
+        </div>
+      </div>
+
+      <Card className="bg-slate-950 border-slate-800">
+        <CardContent className="p-4">
+          <div className="font-mono text-xs leading-relaxed h-[560px] overflow-auto">
+            {filtered.map((l, i) => (
+              <div key={i} className="whitespace-nowrap">
+                <span className="text-slate-500">{l.ts}</span>
+                <span className="text-slate-400 ml-3">manager.go:525:</span>
+                <span className={`ml-3 ${l.level === 'error' ? 'text-rose-400' : 'text-emerald-400'}`}>{l.msg}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
