@@ -638,6 +638,28 @@ export default function Campanhas() {
               <Users className="h-4 w-4" />
               Assinantes
             </button>
+
+            <div className="pt-3 pb-1 px-3 text-xs font-semibold text-muted-foreground uppercase">
+              Sistema
+            </div>
+            <button
+              onClick={() => setSection('configuracoes')}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                section === 'configuracoes' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              Configurações
+            </button>
+            <button
+              onClick={() => setSection('logs')}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                section === 'logs' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+              }`}
+            >
+              <ScrollText className="h-4 w-4" />
+              Logs
+            </button>
           </nav>
         </aside>
 
