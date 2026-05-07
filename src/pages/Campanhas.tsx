@@ -75,6 +75,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
 type CampaignStatus = 'rascunho' | 'agendada' | 'enviada' | 'pausada' | 'finalizada';
@@ -86,7 +88,9 @@ type Section =
   | 'modelos'
   | 'analises'
   | 'listas'
-  | 'assinantes';
+  | 'assinantes'
+  | 'configuracoes'
+  | 'logs';
 
 interface Campaign {
   id: string;
