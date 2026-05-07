@@ -1211,6 +1211,12 @@ export default function Campanhas() {
               </Card>
             </>
           )}
+
+          {/* CONFIGURAÇÕES */}
+          {section === 'configuracoes' && <ConfiguracoesPanel />}
+
+          {/* LOGS */}
+          {section === 'logs' && <LogsPanel />}
         </main>
       </div>
 
